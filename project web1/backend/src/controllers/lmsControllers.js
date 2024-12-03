@@ -179,6 +179,79 @@ const createCourse = async (req, res) => {
     }
 };
 
+const deleteCourse = async (req, res) => {
+    try {
+        // Kiểm tra quyền admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Không có quyền thực hiện' });
+        }
+
+        const courseId = req.params.courseId;
+
+        // Xóa tất cả video progress liên quan đến videos của khóa học
+        await lms.deleteVideoProgressByCourseId(courseId);
+        
+        // Xóa tất cả videos của khóa học
+        await lms.deleteVideosByCourseId(courseId);
+        
+        // Xóa tất cả chapters của khóa học
+        await lms.deleteChaptersByCourseId(courseId);
+        
+        // Cuối cùng xóa khóa học
+        await lms.deleteCourse(courseId);
+        
+        res.status(200).json({ message: 'Xóa khóa học thành công' });
+    } catch (error) {
+        console.error('Error deleting course:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const updateCourse = async (req, res) => {
+    try {
+        // Kiểm tra quyền admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Không có quyền thực hiện' });
+        }
+
+        const courseId = req.params.courseId;
+        const { title, description, thumbnail } = req.body;
+
+        // Kiểm tra xem khóa học có tồn tại không
+        const existingCourse = await lms.getCourseById(courseId);
+        if (!existingCourse) {
+            return res.status(404).json({ message: 'Không tìm thấy khóa học' });
+        }
+
+        const updatedCourse = await lms.updateCourse(courseId, { 
+            title, 
+            description, 
+            thumbnail 
+        });
+        
+        res.status(200).json(updatedCourse);
+    } catch (error) {
+        console.error('Error updating course:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const getCourseById = async (req, res) => {
+    try {
+        const courseId = req.params.courseId;
+        const course = await lms.getCourseById(courseId);
+        
+        if (!course) {
+            return res.status(404).json({ message: 'Không tìm thấy khóa học' });
+        }
+        
+        res.status(200).json(course);
+    } catch (error) {
+        console.error('Error getting course:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 module.exports = { 
     getAllCourses,
     getAllVideos,
@@ -190,6 +263,9 @@ module.exports = {
     updateVideoProgress,
     register,
     login,
-    createCourse
+    createCourse,
+    deleteCourse,
+    updateCourse,
+    getCourseById
 };
 

@@ -181,6 +181,104 @@ const lms = {
                 }
             );
         });
+    },
+
+    deleteCourse: (courseId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'DELETE FROM courses WHERE id = ?',
+                [courseId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
+
+    deleteChaptersByCourseId: (courseId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'DELETE FROM chapters WHERE course_id = ?',
+                [courseId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
+
+    getCourseById: (courseId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'SELECT * FROM courses WHERE id = ?',
+                [courseId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    updateCourse: (courseId, courseData) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'UPDATE courses SET title = ?, description = ?, thumbnail = ? WHERE id = ?',
+                [courseData.title, courseData.description, courseData.thumbnail, courseId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve({ id: courseId, ...courseData });
+                }
+            );
+        });
+    },
+
+    deleteVideoProgressByCourseId: (courseId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                `DELETE vp FROM video_progress vp 
+                 INNER JOIN videos v ON vp.video_id = v.id 
+                 WHERE v.course_id = ?`,
+                [courseId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
+
+    deleteVideosByCourseId: (courseId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'DELETE FROM videos WHERE course_id = ?',
+                [courseId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
     }
 };
 

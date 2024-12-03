@@ -14,6 +14,9 @@ router.post('/videos/:videoId/progress', authMiddleware, lmsControllers.updateVi
 router.post('/auth/register', lmsControllers.register);
 router.post('/auth/login', lmsControllers.login);
 router.post('/courses', authMiddleware, lmsControllers.createCourse);
+router.delete('/courses/:courseId', authMiddleware, lmsControllers.deleteCourse);
+router.put('/courses/:courseId', authMiddleware, lmsControllers.updateCourse);
+router.get('/courses/:courseId', lmsControllers.getCourseById);
 
 module.exports = router;
 

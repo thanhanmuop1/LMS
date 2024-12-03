@@ -1,17 +1,49 @@
 import React, { useState } from 'react';
-import { Table, Button, Space, message } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Table, Button, Space, message, Modal } from 'antd';
+import { EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import AddCourse from './manage_add/add_course';
+import EditCourse from './manage_edit/edit_course';
+import axios from 'axios';
+
+const { confirm } = Modal;
 
 const CourseManagement = ({ courses, loading, onCourseAdded }) => {
+  const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   const handleEdit = (record) => {
-    message.info('Chức năng đang phát triển');
+    setSelectedCourse(record);
+    setIsEditModalVisible(true);
   };
 
   const handleDelete = (record) => {
-    message.info('Chức năng đang phát triển');
+    confirm({
+      title: 'Bạn có chắc chắn muốn xóa khóa học này?',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Hành động này không thể hoàn tác',
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      async onOk() {
+        try {
+          const token = localStorage.getItem('token');
+          await axios.delete(`http://localhost:5000/courses/${record.id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          message.success('Xóa khóa học thành công');
+          if (onCourseAdded) {
+            onCourseAdded();
+          }
+        } catch (error) {
+          message.error('Có lỗi xảy ra khi xóa khóa học');
+        }
+      },
+    });
   };
 
   const showModal = () => {
@@ -27,6 +59,24 @@ const CourseManagement = ({ courses, loading, onCourseAdded }) => {
     if (onCourseAdded) {
       onCourseAdded();
     }
+  };
+
+  const handleEditSuccess = () => {
+    setIsEditModalVisible(false);
+    setSelectedCourse(null);
+    if (onCourseAdded) {
+      onCourseAdded();
+    }
+  };
+
+  const handleEditCancel = () => {
+    setIsEditModalVisible(false);
+    setSelectedCourse(null);
+  };
+
+  const handleRowClick = (record) => {
+    navigate(`/admin/courses/${record.id}/videos`);
+    console.log(record);
   };
 
   const columns = [
@@ -64,14 +114,12 @@ const CourseManagement = ({ courses, loading, onCourseAdded }) => {
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
           >
-            Sửa
           </Button>
           <Button 
             danger 
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record)}
           >
-            Xóa
           </Button>
         </Space>
       ),
@@ -89,12 +137,23 @@ const CourseManagement = ({ courses, loading, onCourseAdded }) => {
         dataSource={courses} 
         loading={loading}
         rowKey="id"
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record),
+          style: { cursor: 'pointer' }
+        })}
       />
 
       <AddCourse
         visible={isModalVisible}
         onCancel={handleCancel}
         onSuccess={handleSuccess}
+      />
+
+      <EditCourse
+        visible={isEditModalVisible}
+        onCancel={handleEditCancel}
+        onSuccess={handleEditSuccess}
+        courseData={selectedCourse}
       />
     </div>
   );

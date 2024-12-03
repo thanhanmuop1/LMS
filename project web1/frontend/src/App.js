@@ -8,6 +8,7 @@ import Register from './components/auth/Register';
 import PrivateRoute from './components/auth/PrivateRoute';
 import AdminPage from './components/admin/admin_page';
 import AdminRoute from './components/auth/AdminRoute';
+import VideoManagement from './components/admin/courses/video_management';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/admin/courses/:courseId/videos" element={<VideoManagement />} />
       </Routes>
     </Router>
   );
