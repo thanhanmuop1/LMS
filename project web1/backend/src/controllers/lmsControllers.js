@@ -1,6 +1,4 @@
 const lms = require('../models/lms');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 
 const getAllCourses = async (req, res) => {
     try {
@@ -71,98 +69,6 @@ const getVideosByChapterId = async (req, res) => {
     }
 };
 
-const getVideoProgress = async (req, res) => {
-    try {
-        const videoId = req.params.videoId;
-        const userId = req.user.id; // Assuming you have authentication middleware
-        const progress = await lms.getVideoProgress(userId, videoId);
-        res.status(200).json(progress);
-    } catch (error) {
-        console.error('Error getting video progress:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
-
-const updateVideoProgress = async (req, res) => {
-    try {
-        const videoId = req.params.videoId;
-        const userId = req.user.id; // Assuming you have authentication middleware
-        const { completed } = req.body;
-        await lms.updateVideoProgress(userId, videoId, completed);
-        res.status(200).json({ message: 'Progress updated successfully' });
-    } catch (error) {
-        console.error('Error updating video progress:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
-
-const register = async (req, res) => {
-    try {
-        const { username, email, password, full_name } = req.body;
-        
-        // Check if user already exists
-        const existingUser = await lms.getUserByEmail(email);
-        if (existingUser) {
-            return res.status(400).json({ message: 'Email already registered' });
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
-        // Create user
-        const user = await lms.createUser({
-            username,
-            email,
-            password: hashedPassword,
-            full_name
-        });
-
-        res.status(201).json({ message: 'User registered successfully' });
-    } catch (error) {
-        console.error('Error registering user:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
-
-const login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        
-        // Get user by email
-        const user = await lms.getUserByEmail(email);
-        if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        // Check password
-        const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        // Generate JWT token
-        const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role },
-            'your_jwt_secret', // Thay thế bằng secret key thực tế
-            { expiresIn: '24h' }
-        );
-
-        res.status(200).json({
-            token,
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                full_name: user.full_name,
-                role: user.role
-            }
-        });
-    } catch (error) {
-        console.error('Error logging in:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
-
 const createCourse = async (req, res) => {
     try {
         // Kiểm tra quyền admin
@@ -187,9 +93,6 @@ const deleteCourse = async (req, res) => {
         }
 
         const courseId = req.params.courseId;
-
-        // Xóa tất cả video progress liên quan đến videos của khóa học
-        await lms.deleteVideoProgressByCourseId(courseId);
         
         // Xóa tất cả videos của khóa học
         await lms.deleteVideosByCourseId(courseId);
@@ -252,6 +155,112 @@ const getCourseById = async (req, res) => {
     }
 };
 
+const createChapter = async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Không có quyền thực hiện' });
+        }
+
+        const courseId = req.params.courseId;
+        const { title } = req.body;
+        
+        const result = await lms.createChapter(courseId, title);
+        res.status(201).json(result);
+    } catch (error) {
+        console.error('Error creating chapter:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const updateChapter = async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Không có quyền thực hiện' });
+        }
+
+        const chapterId = req.params.chapterId;
+        const { title } = req.body;
+        
+        await lms.updateChapter(chapterId, title);
+        res.status(200).json({ message: 'Cập nhật chương thành công' });
+    } catch (error) {
+        console.error('Error updating chapter:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const deleteChapter = async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Không có quyền thực hiện' });
+        }
+
+        const chapterId = req.params.chapterId;
+
+        // Xóa tất cả video trong chương
+        await lms.deleteVideosByChapterId(chapterId);
+        // Xóa chương
+        await lms.deleteChapter(chapterId);
+        
+        res.status(200).json({ message: 'Xóa chương thành công' });
+    } catch (error) {
+        console.error('Error deleting chapter:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const createVideo = async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Không có quyền thực hiện' });
+        }
+
+        const chapterId = req.params.chapterId;
+        const { title, video_url, course_id } = req.body;
+        
+        const result = await lms.createVideo(chapterId, course_id, title, video_url);
+        res.status(201).json(result);
+    } catch (error) {
+        console.error('Error creating video:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const updateVideo = async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Không có quyền thực hiện' });
+        }
+
+        const videoId = req.params.videoId;
+        const { title, video_url } = req.body;
+        
+        await lms.updateVideo(videoId, title, video_url);
+        res.status(200).json({ message: 'Cập nhật video thành công' });
+    } catch (error) {
+        console.error('Error updating video:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const deleteVideo = async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Không có quyền thực hiện' });
+        }
+
+        const videoId = req.params.videoId;
+
+        // Xóa video
+        await lms.deleteVideo(videoId);
+        
+        res.status(200).json({ message: 'Xóa video thành công' });
+    } catch (error) {
+        console.error('Error deleting video:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 module.exports = { 
     getAllCourses,
     getAllVideos,
@@ -259,13 +268,15 @@ module.exports = {
     getVideoById,
     getChaptersByCourseId,
     getVideosByChapterId,
-    getVideoProgress,
-    updateVideoProgress,
-    register,
-    login,
     createCourse,
     deleteCourse,
     updateCourse,
-    getCourseById
+    getCourseById,
+    createChapter,
+    updateChapter,
+    deleteChapter,
+    createVideo,
+    updateVideo,
+    deleteVideo
 };
 

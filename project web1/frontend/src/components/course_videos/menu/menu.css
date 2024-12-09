@@ -18,12 +18,14 @@
 }
 
 .video-menu-item {
-  padding: 4px 0;
+  width: 100%;
 }
 
 .video-title {
-  font-size: 14px;
-  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .video-duration {

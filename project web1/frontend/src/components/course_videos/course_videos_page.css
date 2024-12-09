@@ -11,8 +11,31 @@
   overflow-y: auto;
 }
 
-.video-section {
+.content-section {
   flex: 1;
-  padding: 10px 20px 20px 20px;
   overflow-y: auto;
+}
+
+.loading-icon {
+  font-size: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .course-videos-container {
+    flex-direction: column;
+  }
+
+  .menu-section {
+    height: auto;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .content-section {
+    height: auto;
+  }
 } 

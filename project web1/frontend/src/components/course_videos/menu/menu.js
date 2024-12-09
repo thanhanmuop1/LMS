@@ -1,10 +1,9 @@
 import React from 'react';
-import { Menu as AntMenu } from 'antd';
-import { PlayCircleOutlined, FolderOutlined } from '@ant-design/icons';
+import { Menu as AntMenu, Tooltip } from 'antd';
+import { PlayCircleOutlined, FolderOutlined, FileTextOutlined } from '@ant-design/icons';
 import './menu.css';
 
-const Menu = ({ videos, chapters, onVideoSelect }) => { // videos = [], chapters = [] trong đó =[] để tránh lỗi ko có gì
-  // Nhóm video theo chapter
+const Menu = ({ videos, chapters, quizzes, onVideoSelect, onQuizSelect }) => {
   const getVideosByChapter = () => {
     const videosByChapter = {};
     videos.forEach(video => {
@@ -16,26 +15,53 @@ const Menu = ({ videos, chapters, onVideoSelect }) => { // videos = [], chapters
     return videosByChapter;
   };
 
-  // Tạo menu items
+  const getQuizzesByChapter = () => {
+    const quizzesByChapter = {};
+    quizzes.forEach(quiz => {
+      if (!quizzesByChapter[quiz.chapter_id]) {
+        quizzesByChapter[quiz.chapter_id] = [];
+      }
+      quizzesByChapter[quiz.chapter_id].push(quiz);
+    });
+    return quizzesByChapter;
+  };
+
   const getMenuItems = () => {
     const videosByChapter = getVideosByChapter();
+    const quizzesByChapter = getQuizzesByChapter();
     
     return chapters.map(chapter => ({
       key: `chapter-${chapter.id}`,
       icon: <FolderOutlined />,
       label: chapter.title,
-      children: videosByChapter[chapter.id]?.map((video, index) => ({
-        key: video.id,
-        icon: <PlayCircleOutlined />,
-        label: (
-          <div className="video-menu-item">
-            <div className="video-title">
-              {`${index + 1}. ${video.title}`}
-            </div>
-          </div>
-        ),
-        onClick: () => onVideoSelect(video)
-      })) || []
+      children: [
+        ...(videosByChapter[chapter.id]?.map((video, index) => ({
+          key: `video-${video.id}`,
+          icon: <PlayCircleOutlined />,
+          label: (
+            <Tooltip title={`${index + 1}. ${video.title}`} placement="right">
+              <div className="video-menu-item">
+                <div className="video-title">
+                  {`${index + 1}. ${video.title}`}
+                </div>
+              </div>
+            </Tooltip>
+          ),
+          onClick: () => onVideoSelect(video)
+        })) || []),
+        ...(quizzesByChapter[chapter.id]?.map((quiz, index) => ({
+          key: `quiz-${quiz.id}`,
+          icon: <FileTextOutlined />,
+          label: (
+            <Tooltip title={quiz.title} placement="right">
+              <div className="quiz-menu-item">
+                <div className="quiz-title">{quiz.title}</div>
+              </div>
+            </Tooltip>
+          ),
+          onClick: () => onQuizSelect(quiz)
+        })) || [])
+      ]
     }));
   };
 
@@ -45,7 +71,7 @@ const Menu = ({ videos, chapters, onVideoSelect }) => { // videos = [], chapters
       <AntMenu
         mode="inline"
         className="video-menu"
-        defaultOpenKeys={[`chapter-1`]} // Mặc định mở chapter đầu tiên
+        defaultOpenKeys={[`chapter-1`]}
         items={getMenuItems()}
       />
     </div>

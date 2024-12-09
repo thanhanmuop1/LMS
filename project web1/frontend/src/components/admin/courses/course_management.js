@@ -14,12 +14,14 @@ const CourseManagement = ({ courses, loading, onCourseAdded }) => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
-  const handleEdit = (record) => {
+  const handleEdit = (e, record) => {
+    e.stopPropagation();
     setSelectedCourse(record);
     setIsEditModalVisible(true);
   };
 
-  const handleDelete = (record) => {
+  const handleDelete = (e, record) => {
+    e.stopPropagation();
     confirm({
       title: 'Bạn có chắc chắn muốn xóa khóa học này?',
       icon: <ExclamationCircleOutlined />,
@@ -108,17 +110,17 @@ const CourseManagement = ({ courses, loading, onCourseAdded }) => {
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Space size="middle">
+        <Space size="middle" onClick={e => e.stopPropagation()}>
           <Button 
             type="primary" 
             icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
+            onClick={(e) => handleEdit(e, record)}
           >
           </Button>
           <Button 
             danger 
             icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
+            onClick={(e) => handleDelete(e, record)}
           >
           </Button>
         </Space>

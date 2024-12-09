@@ -101,72 +101,6 @@ const lms = {
         });
     },
 
-    getVideoProgress: (userId, videoId) => {
-        return new Promise((resolve, reject) => {
-            db.query(
-                'SELECT * FROM video_progress WHERE user_id = ? AND video_id = ?',
-                [userId, videoId],
-                (error, results) => {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(results[0] || { completed: false });
-                }
-            );
-        });
-    },
-
-    updateVideoProgress: (userId, videoId, completed) => {
-        return new Promise((resolve, reject) => {
-            db.query(
-                `INSERT INTO video_progress (user_id, video_id, completed) 
-                 VALUES (?, ?, ?)
-                 ON DUPLICATE KEY UPDATE completed = ?`,
-                [userId, videoId, completed, completed],
-                (error, results) => {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(results);
-                }
-            );
-        });
-    },
-
-    getUserByEmail: (email) => {
-        return new Promise((resolve, reject) => {
-            db.query(
-                'SELECT * FROM users WHERE email = ?',
-                [email],
-                (error, results) => {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(results[0]);
-                }
-            );
-        });
-    },
-
-    createUser: (userData) => {
-        return new Promise((resolve, reject) => {
-            db.query(
-                'INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?)',
-                [userData.username, userData.email, userData.password, userData.full_name],
-                (error, results) => {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(results);
-                }
-            );
-        });
-    },
-
     createCourse: (courseData) => {
         return new Promise((resolve, reject) => {
             db.query(
@@ -247,24 +181,6 @@ const lms = {
         });
     },
 
-    deleteVideoProgressByCourseId: (courseId) => {
-        return new Promise((resolve, reject) => {
-            db.query(
-                `DELETE vp FROM video_progress vp 
-                 INNER JOIN videos v ON vp.video_id = v.id 
-                 WHERE v.course_id = ?`,
-                [courseId],
-                (error, results) => {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(results);
-                }
-            );
-        });
-    },
-
     deleteVideosByCourseId: (courseId) => {
         return new Promise((resolve, reject) => {
             db.query(
@@ -279,7 +195,127 @@ const lms = {
                 }
             );
         });
-    }
+    },
+
+    createChapter: (courseId, title) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'INSERT INTO chapters (course_id, title) VALUES (?, ?)',
+                [courseId, title],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve({ id: results.insertId, course_id: courseId, title });
+                }
+            );
+        });
+    },
+
+    updateChapter: (chapterId, title) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'UPDATE chapters SET title = ? WHERE id = ?',
+                [title, chapterId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
+
+    deleteChapter: (chapterId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'DELETE FROM chapters WHERE id = ?',
+                [chapterId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
+
+
+
+    deleteVideosByChapterId: (chapterId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'DELETE FROM videos WHERE chapter_id = ?',
+                [chapterId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
+
+    createVideo: (chapterId, courseId, title, videoUrl) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'INSERT INTO videos (chapter_id, course_id, title, video_url) VALUES (?, ?, ?, ?)',
+                [chapterId, courseId, title, videoUrl],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve({ 
+                        id: results.insertId, 
+                        chapter_id: chapterId,
+                        course_id: courseId,
+                        title,
+                        video_url: videoUrl 
+                    });
+                }
+            );
+        });
+    },
+
+    updateVideo: (videoId, title, videoUrl) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'UPDATE videos SET title = ?, video_url = ? WHERE id = ?',
+                [title, videoUrl, videoId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
+
+    deleteVideo: (videoId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'DELETE FROM videos WHERE id = ?',
+                [videoId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
 };
 
 module.exports = lms;

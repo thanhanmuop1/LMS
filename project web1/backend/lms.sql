@@ -1,4 +1,5 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,10 +15,6 @@ CREATE TABLE chapters (
   created_at timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO chapters (id, course_id, title, order_index, created_at) VALUES
-(1, 1, 'Chương 1', 1, '2024-11-22 03:19:38'),
-(2, 1, 'Chương 2', 2, '2024-11-22 03:21:46');
-
 CREATE TABLE courses (
   id int(11) NOT NULL,
   title varchar(200) NOT NULL,
@@ -25,9 +22,6 @@ CREATE TABLE courses (
   thumbnail varchar(255) DEFAULT NULL,
   created_at timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-INSERT INTO courses (id, title, description, thumbnail, created_at) VALUES
-(1, 'Triết học Mac', 'sad', 'https://lms.ptit.edu.vn/web/image/slide.channel/2/image_1024?unique=845783c', '2024-11-20 04:39:01');
 
 CREATE TABLE users (
   id int(11) NOT NULL,
@@ -39,10 +33,6 @@ CREATE TABLE users (
   role enum('admin','student','teacher') DEFAULT 'student'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO users (id, username, email, password, full_name, created_at, role) VALUES
-(1, 'thanhanmuop@gmail.com', 'thanhanmuop@gmail.com', '$2b$10$PdsZIgi72FKX5TreyZAduOQ7kqCCVMTasW6wMwCYSq6vppElnb1pK', 'thành', '2024-11-27 01:33:45', 'student'),
-(2, 'thanhanmuop', 'thanhanmuop1@gmail.com', '$2b$10$LspKUNuIvH/QtwIioaAcIO/Sjx/IhxHlmy5TBT92Vrkmg9pwQ/hny', 'thành', '2024-11-28 01:40:28', 'admin');
-
 CREATE TABLE videos (
   id int(11) NOT NULL,
   title varchar(200) NOT NULL,
@@ -51,20 +41,71 @@ CREATE TABLE videos (
   chapter_id int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO videos (id, title, course_id, video_url, chapter_id) VALUES
-(1, 'Machiot', 1, 'https://www.youtube.com/watch?v=aZGVs9ScLpA', 1),
-(2, 'LIVE SET | ON A TRIP BY QUAN ADN | MIXSET HOUSELAK TRÊN XE Ô TÔ 2024', 1, 'https://www.youtube.com/watch?v=WZUTGermWzU', 1),
-(4, 'LUÔN VUI TƯƠI #22', 1, 'https://www.youtube.com/watch?v=hxtNgWP_9t4', 2);
-
-CREATE TABLE video_progress (
-  id int(11) NOT NULL,
-  user_id int(11) NOT NULL,
-  video_id int(11) NOT NULL,
-  completed tinyint(1) DEFAULT 0,
+CREATE TABLE quizzes (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  title varchar(255) NOT NULL,
+  course_id int(11) NOT NULL,
+  chapter_id int(11) DEFAULT NULL,
+  video_id int(11) DEFAULT NULL,
+  duration_minutes int(11) DEFAULT 30,
+  passing_score int(11) DEFAULT 60,
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
-  updated_at timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  PRIMARY KEY (id),
+  KEY course_id (course_id),
+  KEY chapter_id (chapter_id),
+  KEY video_id (video_id),
+  CONSTRAINT quizzes_ibfk_1 FOREIGN KEY (course_id) REFERENCES courses (id),
+  CONSTRAINT quizzes_ibfk_2 FOREIGN KEY (chapter_id) REFERENCES chapters (id),
+  CONSTRAINT quizzes_ibfk_3 FOREIGN KEY (video_id) REFERENCES videos (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE quiz_questions (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  quiz_id int(11) NOT NULL,
+  question_text text NOT NULL,
+  points int(11) DEFAULT 1,
+  created_at timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id),
+  KEY quiz_id (quiz_id),
+  CONSTRAINT quiz_questions_ibfk_1 FOREIGN KEY (quiz_id) REFERENCES quizzes (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE quiz_options (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  question_id int(11) NOT NULL,
+  option_text text NOT NULL,
+  is_correct boolean DEFAULT FALSE,
+  created_at timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id),
+  KEY question_id (question_id),
+  CONSTRAINT quiz_options_ibfk_1 FOREIGN KEY (question_id) REFERENCES quiz_questions (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE quiz_attempts (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  quiz_id INT NOT NULL,
+  score INT NOT NULL,
+  status ENUM('completed', 'failed') NOT NULL,
+  end_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (quiz_id) REFERENCES quizzes(id)
+);
+
+CREATE TABLE quiz_answers (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  attempt_id int(11) NOT NULL,
+  question_id int(11) NOT NULL,
+  selected_option_id int(11) NOT NULL,
+  created_at timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id),
+  KEY attempt_id (attempt_id),
+  KEY question_id (question_id),
+  KEY selected_option_id (selected_option_id),
+  CONSTRAINT quiz_answers_ibfk_1 FOREIGN KEY (attempt_id) REFERENCES quiz_attempts (id),
+  CONSTRAINT quiz_answers_ibfk_2 FOREIGN KEY (question_id) REFERENCES quiz_questions (id),
+  CONSTRAINT quiz_answers_ibfk_3 FOREIGN KEY (selected_option_id) REFERENCES quiz_options (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 ALTER TABLE chapters
   ADD PRIMARY KEY (id),
@@ -83,11 +124,6 @@ ALTER TABLE videos
   ADD KEY course_id (course_id),
   ADD KEY chapter_id (chapter_id);
 
-ALTER TABLE video_progress
-  ADD PRIMARY KEY (id),
-  ADD UNIQUE KEY user_video_unique (user_id,video_id),
-  ADD KEY video_id (video_id);
-
 
 ALTER TABLE chapters
   MODIFY id int(11) NOT NULL AUTO_INCREMENT;
@@ -101,9 +137,6 @@ ALTER TABLE users
 ALTER TABLE videos
   MODIFY id int(11) NOT NULL AUTO_INCREMENT;
 
-ALTER TABLE video_progress
-  MODIFY id int(11) NOT NULL AUTO_INCREMENT;
-
 
 ALTER TABLE chapters
   ADD CONSTRAINT chapters_ibfk_1 FOREIGN KEY (course_id) REFERENCES courses (id);
@@ -111,10 +144,6 @@ ALTER TABLE chapters
 ALTER TABLE videos
   ADD CONSTRAINT videos_ibfk_1 FOREIGN KEY (course_id) REFERENCES courses (id),
   ADD CONSTRAINT videos_ibfk_2 FOREIGN KEY (chapter_id) REFERENCES chapters (id);
-
-ALTER TABLE video_progress
-  ADD CONSTRAINT video_progress_ibfk_1 FOREIGN KEY (user_id) REFERENCES `users` (id),
-  ADD CONSTRAINT video_progress_ibfk_2 FOREIGN KEY (video_id) REFERENCES videos (id);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
