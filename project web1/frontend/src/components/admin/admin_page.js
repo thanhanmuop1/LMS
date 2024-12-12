@@ -7,33 +7,42 @@ import './admin_page.css';
 
 const AdminPage = () => {
   const [courses, setCourses] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchCourses();
+    fetchData();
   }, []);
 
-  const fetchCourses = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/courses');
-      setCourses(response.data);
+      const [coursesResponse, usersResponse] = await Promise.all([
+        axios.get('http://localhost:5000/courses'),
+        axios.get('http://localhost:5000/users', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        })
+      ]);
+      setCourses(coursesResponse.data);
+      setUsers(usersResponse.data);
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleCourseAdded = () => {
-    fetchCourses();
+    fetchData();
   };
 
   const items = [
     {
       key: '1',
       label: 'Tổng quan',
-      children: <Dashboard courses={courses} />,
+      children: <Dashboard courses={courses} users={users} />,
     },
     {
       key: '2',

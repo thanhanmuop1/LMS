@@ -261,6 +261,37 @@ const deleteVideo = async (req, res) => {
     }
 };
 
+const markVideoAsWatched = async (req, res) => {
+    try {
+        const { videoId } = req.params;
+        const userId = req.user.id;
+
+        // Check if the record already exists
+        const existingRecord = await lms.getVideoCompletion(userId, videoId);
+        if (existingRecord) {
+            return res.status(200).json({ message: 'Video already marked as watched' });
+        }
+
+        // Mark video as watched
+        await lms.markVideoAsWatched(userId, videoId);
+        res.status(200).json({ message: 'Video marked as watched' });
+    } catch (error) {
+        console.error('Error marking video as watched:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const getCompletedVideos = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const completedVideos = await lms.getCompletedVideos(userId);
+        res.status(200).json(completedVideos);
+    } catch (error) {
+        console.error('Error getting completed videos:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 module.exports = { 
     getAllCourses,
     getAllVideos,
@@ -277,6 +308,8 @@ module.exports = {
     deleteChapter,
     createVideo,
     updateVideo,
-    deleteVideo
+    deleteVideo,
+    markVideoAsWatched,
+    getCompletedVideos
 };
 

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Table, Button, Space, message, Modal } from 'antd';
 import { EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import AddCourse from './manage_add/add_course';
-import EditCourse from './manage_edit/edit_course';
+import AddCourse from './manage_course/add_course';
+import EditCourse from './manage_course/edit_course';
 import axios from 'axios';
 
 const { confirm } = Modal;

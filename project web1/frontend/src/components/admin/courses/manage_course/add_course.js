@@ -53,7 +53,7 @@ const AddCourse = ({ visible, onCancel, onSuccess }) => {
         <Form.Item
           name="thumbnail"
           label="URL Ảnh thumbnail"
-          rules={[{ required: true, message: 'Vui lòng nhập URL ảnh!' }]}
+          rules={[{ message: 'Vui lòng nhập URL ảnh!' }]}
         >
           <Input />
         </Form.Item>

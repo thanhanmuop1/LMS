@@ -41,14 +41,26 @@ CREATE TABLE videos (
   chapter_id int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE video_completion (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  user_id int(11) NOT NULL,
+  video_id int(11) NOT NULL,
+  is_completed TINYINT(1) DEFAULT 0,
+  PRIMARY KEY (id),
+  UNIQUE KEY user_video (user_id, video_id),
+  CONSTRAINT video_completion_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (id),
+  CONSTRAINT video_completion_ibfk_2 FOREIGN KEY (video_id) REFERENCES videos (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 CREATE TABLE quizzes (
   id int(11) NOT NULL AUTO_INCREMENT,
   title varchar(255) NOT NULL,
-  course_id int(11) NOT NULL,
+  course_id int(11) DEFAULT NULL,
   chapter_id int(11) DEFAULT NULL,
   video_id int(11) DEFAULT NULL,
   duration_minutes int(11) DEFAULT 30,
   passing_score int(11) DEFAULT 60,
+  quiz_type ENUM('video', 'chapter') NOT NULL DEFAULT 'video',
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (id),
   KEY course_id (course_id),
@@ -73,8 +85,8 @@ CREATE TABLE quiz_questions (
 CREATE TABLE quiz_options (
   id int(11) NOT NULL AUTO_INCREMENT,
   question_id int(11) NOT NULL,
-  option_text text NOT NULL,
-  is_correct boolean DEFAULT FALSE,
+  option_text TEXT NOT NULL,
+  is_correct TINYINT(1) DEFAULT 0,
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (id),
   KEY question_id (question_id),
@@ -105,6 +117,44 @@ CREATE TABLE quiz_answers (
   CONSTRAINT quiz_answers_ibfk_1 FOREIGN KEY (attempt_id) REFERENCES quiz_attempts (id),
   CONSTRAINT quiz_answers_ibfk_2 FOREIGN KEY (question_id) REFERENCES quiz_questions (id),
   CONSTRAINT quiz_answers_ibfk_3 FOREIGN KEY (selected_option_id) REFERENCES quiz_options (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Bảng chứa các tag môn học/chủ đề
+CREATE TABLE quiz_tags (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  name varchar(50) NOT NULL,
+  type ENUM('subject', 'topic', 'skill', 'level') NOT NULL,
+  description TEXT,
+  parent_id int(11) DEFAULT NULL,
+  created_at timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id),
+  UNIQUE KEY name_type (name, type),
+  FOREIGN KEY (parent_id) REFERENCES quiz_tags(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Bảng liên kết quiz với tags
+CREATE TABLE quiz_tag_relations (
+  quiz_id int(11) NOT NULL,
+  tag_id int(11) NOT NULL,
+  created_at timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (quiz_id, tag_id),
+  FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE,
+  FOREIGN KEY (tag_id) REFERENCES quiz_tags(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE documents (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  title varchar(255) NOT NULL,
+  file_path varchar(255) NOT NULL,
+  file_type varchar(50) NOT NULL,
+  course_id int(11) NOT NULL,
+  chapter_id int(11) DEFAULT NULL,
+  video_id int(11) DEFAULT NULL,
+  uploaded_at timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id),
+  FOREIGN KEY (course_id) REFERENCES courses(id),
+  FOREIGN KEY (chapter_id) REFERENCES chapters(id),
+  FOREIGN KEY (video_id) REFERENCES videos(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 ALTER TABLE chapters

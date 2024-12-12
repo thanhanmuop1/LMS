@@ -5,6 +5,7 @@ const authMiddleware = require('../middleware/auth');
 
 router.get('/courses', lmsControllers.getAllCourses);
 router.get('/videos', lmsControllers.getAllVideos);
+router.get('/videos/completed', authMiddleware, lmsControllers.getCompletedVideos);
 router.get('/videos/:videoId', lmsControllers.getVideoById);
 router.get('/courses/:courseId/chapters', lmsControllers.getChaptersByCourseId);
 router.get('/courses/:courseId/videos', lmsControllers.getVideosByCourseId);
@@ -19,5 +20,6 @@ router.delete('/chapters/:chapterId', authMiddleware, lmsControllers.deleteChapt
 router.post('/chapters/:chapterId/videos', authMiddleware, lmsControllers.createVideo);
 router.put('/videos/:videoId', authMiddleware, lmsControllers.updateVideo);
 router.delete('/videos/:videoId', authMiddleware, lmsControllers.deleteVideo);
+router.post('/videos/:videoId/mark-watched', authMiddleware, lmsControllers.markVideoAsWatched);
 
 module.exports = router;

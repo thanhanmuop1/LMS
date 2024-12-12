@@ -12,7 +12,6 @@ const QuizReview = ({ quiz, quizResult }) => {
         <div className="quiz-review">
             {quiz.questions.map((question, index) => {
                 const resultDetail = quizResult.details.find(d => d.id === question.id);
-                const selectedOption = question.options.find(opt => opt.id === resultDetail?.selected_answer);
                 const correctOption = question.options.find(opt => opt.is_correct);
                 
                 return (

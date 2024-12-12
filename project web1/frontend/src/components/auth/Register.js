@@ -7,6 +7,7 @@ import './Auth.css';
 const Register = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [form] = Form.useForm();
 
     const onFinish = async (values) => {
         try {
@@ -24,6 +25,7 @@ const Register = () => {
     return (
         <div className="auth-container">
             <Form
+                form={form}
                 name="register"
                 onFinish={onFinish}
                 layout="vertical"
@@ -60,7 +62,32 @@ const Register = () => {
                 <Form.Item
                     label="Mật khẩu"
                     name="password"
-                    rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+                    rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' },
+                        { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' },
+                        { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/,
+                             message: 'Mật khẩu phải có ít nhất 6 ký tự, 1 chữ cái viết hoa, 1 chữ cái viết thường, 1 số!' }
+                    ]}
+                    hasFeedback
+                >
+                    <Input.Password onChange={() => {
+                        form.validateFields(['confirm_password']);
+                    }} />
+                </Form.Item>
+
+                <Form.Item
+                    label="Xác nhận mật khẩu"
+                    name="confirm_password"
+                    dependencies={['password']}
+                    rules={[{ required: true, message: 'Vui lòng xác nhận mật khẩu!' },
+                        ({ getFieldValue }) => ({
+                            validator(_, value) {
+                                if (!value || getFieldValue('password') === value) {
+                                    return Promise.resolve();
+                                }
+                                return Promise.reject(new Error('Mật khẩu không khớp!'));
+                            }
+                        })
+                    ]}
                 >
                     <Input.Password />
                 </Form.Item>

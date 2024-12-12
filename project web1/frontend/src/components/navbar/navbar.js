@@ -14,6 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { message } from 'antd';
 
 const pages = ['Khóa học'];
 
@@ -59,6 +60,7 @@ function ResponsiveAppBar() {
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const isAdmin = user.role === 'admin';
+  const token = localStorage.getItem('token');
 
   const settings = isAdmin 
     ? ['Thông tin cá nhân', 'Quản trị', 'Đăng xuất']
@@ -68,6 +70,12 @@ function ResponsiveAppBar() {
     if (setting === 'Đăng xuất') {
       handleLogout();
     } else if (setting === 'Quản trị') {
+      if (!token) {
+        handleLogout();
+        message.error('Vui lòng đăng nhập để quản trị');
+        navigate('/login');
+        return;
+      }
       navigate('/admin');
     }
     handleCloseUserMenu();

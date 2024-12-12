@@ -316,6 +316,54 @@ const lms = {
             );
         });
     },
-};
+
+    getVideoCompletion: (userId, videoId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'SELECT * FROM video_completion WHERE user_id = ? AND video_id = ?',
+                [userId, videoId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    markVideoAsWatched: (userId, videoId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'INSERT INTO video_completion (user_id, video_id, is_completed) VALUES (?, ?, 1)',
+                [userId, videoId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
+
+    getCompletedVideos: (userId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'SELECT id, user_id, video_id, is_completed FROM video_completion WHERE user_id = ? AND is_completed = 1',
+                [userId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
+}
 
 module.exports = lms;

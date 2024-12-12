@@ -1,68 +1,84 @@
-import React from 'react';
-import { Menu as AntMenu, Tooltip } from 'antd';
-import { PlayCircleOutlined, FolderOutlined, FileTextOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { Menu as AntMenu } from 'antd';
+import { PlayCircleOutlined, CheckCircleOutlined, ReadOutlined, FileTextOutlined } from '@ant-design/icons';
+import axios from 'axios';
 import './menu.css';
 
 const Menu = ({ videos, chapters, quizzes, onVideoSelect, onQuizSelect }) => {
-  const getVideosByChapter = () => {
-    const videosByChapter = {};
-    videos.forEach(video => {
-      if (!videosByChapter[video.chapter_id]) {
-        videosByChapter[video.chapter_id] = [];
-      }
-      videosByChapter[video.chapter_id].push(video);
-    });
-    return videosByChapter;
-  };
+  const [watchedVideos, setWatchedVideos] = useState([]);
 
-  const getQuizzesByChapter = () => {
-    const quizzesByChapter = {};
-    quizzes.forEach(quiz => {
-      if (!quizzesByChapter[quiz.chapter_id]) {
-        quizzesByChapter[quiz.chapter_id] = [];
+  useEffect(() => {
+    const fetchWatchedVideos = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:5000/videos/completed', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setWatchedVideos(response.data.map(v => v.video_id));
+      } catch (error) {
+        console.error('Error fetching watched videos:', error);
       }
-      quizzesByChapter[quiz.chapter_id].push(quiz);
-    });
-    return quizzesByChapter;
-  };
+    };
+
+    fetchWatchedVideos();
+    window.addEventListener('videoCompleted', fetchWatchedVideos);
+    return () => window.removeEventListener('videoCompleted', fetchWatchedVideos);
+  }, []);
 
   const getMenuItems = () => {
-    const videosByChapter = getVideosByChapter();
-    const quizzesByChapter = getQuizzesByChapter();
-    
-    return chapters.map(chapter => ({
-      key: `chapter-${chapter.id}`,
-      icon: <FolderOutlined />,
-      label: chapter.title,
-      children: [
-        ...(videosByChapter[chapter.id]?.map((video, index) => ({
+    return chapters.map(chapter => {
+      const chapterVideos = videos.filter(video => video.chapter_id === chapter.id);
+      const chapterQuiz = quizzes.find(quiz => 
+        quiz.chapter_id === chapter.id && 
+        quiz.quiz_type === 'chapter'
+      );
+
+      const children = [];
+
+      chapterVideos.forEach(video => {
+        const isWatched = watchedVideos.includes(video.id);
+        
+        children.push({
           key: `video-${video.id}`,
-          icon: <PlayCircleOutlined />,
-          label: (
-            <Tooltip title={`${index + 1}. ${video.title}`} placement="right">
-              <div className="video-menu-item">
-                <div className="video-title">
-                  {`${index + 1}. ${video.title}`}
-                </div>
-              </div>
-            </Tooltip>
-          ),
-          onClick: () => onVideoSelect(video)
-        })) || []),
-        ...(quizzesByChapter[chapter.id]?.map((quiz, index) => ({
-          key: `quiz-${quiz.id}`,
-          icon: <FileTextOutlined />,
-          label: (
-            <Tooltip title={quiz.title} placement="right">
-              <div className="quiz-menu-item">
-                <div className="quiz-title">{quiz.title}</div>
-              </div>
-            </Tooltip>
-          ),
-          onClick: () => onQuizSelect(quiz)
-        })) || [])
-      ]
-    }));
+          icon: isWatched ? <CheckCircleOutlined className="watched-icon" /> : <PlayCircleOutlined />,
+          label: video.title,
+          onClick: () => onVideoSelect(video),
+          className: isWatched ? 'video-watched' : ''
+        });
+
+        const videoQuiz = quizzes.find(quiz => 
+          quiz.video_id === video.id && 
+          quiz.quiz_type === 'video'
+        );
+
+        if (videoQuiz) {
+          children.push({
+            key: `quiz-video-${videoQuiz.id}`,
+            icon: <FileTextOutlined style={{ color: '#52c41a' }} />,
+            label: `Quiz: ${videoQuiz.title || 'Bài kiểm tra'}`,
+            className: 'quiz-menu-item video-quiz',
+            onClick: () => onQuizSelect(videoQuiz)
+          });
+        }
+      });
+
+      if (chapterQuiz) {
+        children.push({
+          key: `quiz-chapter-${chapterQuiz.id}`,
+          icon: <FileTextOutlined style={{ color: '#1890ff' }} />,
+          label: `Quiz chương: ${chapterQuiz.title || 'Bài kiểm tra chương'}`,
+          className: 'quiz-menu-item chapter-quiz',
+          onClick: () => onQuizSelect(chapterQuiz)
+        });
+      }
+
+      return {
+        key: `chapter-${chapter.id}`,
+        icon: <ReadOutlined />,
+        label: chapter.title,
+        children: children
+      };
+    });
   };
 
   return (

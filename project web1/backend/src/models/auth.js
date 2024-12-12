@@ -32,5 +32,18 @@ const auth = {
             );
         });
     },
+
+    getAllUsers: () => {
+        return new Promise((resolve, reject) => {
+            const query = 'SELECT id, username, email, full_name, role FROM users';
+            db.query(query, (error, results) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                resolve(results);
+            });
+        });
+    },
 }
 module.exports = auth;

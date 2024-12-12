@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, message, Card, Typography, Tooltip, Modal } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Table, Button, Space, message, Card, Typography, Tooltip, Modal, Spin } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, VideoCameraAddOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -8,6 +8,7 @@ import AddChapter from './manage_chapter/add_chapter';
 import EditChapter from './manage_chapter/edit_chapter';
 import AddVideo from './manage_video/add_video';
 import EditVideo from './manage_video/edit_video';
+import DocumentManagement from './manage_document/document_management';
 
 const { Title } = Typography;
 const { confirm } = Modal;
@@ -25,12 +26,10 @@ const VideoManagement = () => {
   const [isEditVideoVisible, setIsEditVideoVisible] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [selectedChapterForVideo, setSelectedChapterForVideo] = useState(null);
+  const [isDocumentModalVisible, setIsDocumentModalVisible] = useState(false);
+  const [selectedVideoForDocs, setSelectedVideoForDocs] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [courseId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const [videosResponse, courseResponse, chaptersResponse] = await Promise.all([
@@ -46,7 +45,11 @@ const VideoManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleAddChapter = () => {
     setIsAddChapterVisible(true);
@@ -130,6 +133,11 @@ const VideoManagement = () => {
     fetchData();
   };
 
+  const handleManageDocuments = (video) => {
+    setSelectedVideoForDocs(video);
+    setIsDocumentModalVisible(true);
+  };
+
   const videoColumns = [
     {
       title: 'Tên video',
@@ -150,7 +158,7 @@ const VideoManagement = () => {
     {
       title: 'Hành động',
       key: 'action',
-      width: 150,
+      width: 200,
       render: (_, record) => (
         <Space>
           <Button 
@@ -164,6 +172,12 @@ const VideoManagement = () => {
             icon={<DeleteOutlined />}
             onClick={() => handleDeleteVideo(record.id)}
           />
+          <Button
+            type="link"
+            onClick={() => handleManageDocuments(record)}
+          >
+            Tài liệu
+          </Button>
         </Space>
       ),
     },
@@ -175,102 +189,112 @@ const VideoManagement = () => {
 
   return (
     <div className="video-management">
-      <div className="page-header">
-        <Title level={2}>Quản lý video - {courseInfo?.title}</Title>
-        <Button 
-          type="primary" 
-          icon={<PlusOutlined />}
-          onClick={handleAddChapter}
-        >
-          Thêm chương mới
-        </Button>
-      </div>
-
-      <div className="chapters-container">
-        {chapters.map(chapter => (
-          <Card 
-            key={chapter.id}
-            className="chapter-card"
-            title={
-              <div className="chapter-header">
-                <span>{chapter.title}</span>
-                <Space>
-                  <Button
-                    type="primary"
-                    icon={<VideoCameraAddOutlined />}
-                    size="small"
-                    onClick={() => handleAddVideo(chapter)}
-                  >
-                    Thêm video
-                  </Button>
-                  {/* Edit chapter */}
-                  <Button
-                    type="text"
-                    icon={<EditOutlined />}
-                    size="small"
-                    onClick={() => handleEditChapter(chapter)}
-                  />
-                  {/* Delete chapter */}
-                  <Button
-                    type="text"
-                    danger
-                    icon={<DeleteOutlined />}
-                    size="small"
-                    onClick={() => handleDeleteChapter(chapter.id)}
-                  />
-                </Space>
-              </div>
-            }
+      <Spin spinning={loading}>
+        <div className="page-header">
+          <Title level={2}>Quản lý video - {courseInfo?.title}</Title>
+          <Button 
+            type="primary" 
+            icon={<PlusOutlined />}
+            onClick={handleAddChapter}
           >
-            {/* Table videos */}
-            <Table 
-              columns={videoColumns} 
-              dataSource={getVideosByChapter(chapter.id)}
-              pagination={false}
-              rowKey="id"
-              size="small"
-            />
-          </Card>
-        ))}
-      </div>
+            Thêm chương mới
+          </Button>
+        </div>
 
-      <AddChapter
-        visible={isAddChapterVisible}
-        onCancel={() => setIsAddChapterVisible(false)}
-        onSuccess={handleChapterSuccess}
-        courseId={courseId}
-      />
+        <div className="chapters-container">
+          {chapters.map(chapter => (
+            <Card 
+              key={chapter.id}
+              className="chapter-card"
+              title={
+                <div className="chapter-header">
+                  <span>{chapter.title}</span>
+                  <Space>
+                    <Button
+                      type="primary"
+                      icon={<VideoCameraAddOutlined />}
+                      size="small"
+                      onClick={() => handleAddVideo(chapter)}
+                    >
+                      Thêm video
+                    </Button>
+                    <Button
+                      type="text"
+                      icon={<EditOutlined />}
+                      size="small"
+                      onClick={() => handleEditChapter(chapter)}
+                    />
+                    <Button
+                      type="text"
+                      danger
+                      icon={<DeleteOutlined />}
+                      size="small"
+                      onClick={() => handleDeleteChapter(chapter.id)}
+                    />
+                  </Space>
+                </div>
+              }
+            >
+              <Table 
+                columns={videoColumns} 
+                dataSource={getVideosByChapter(chapter.id)}
+                pagination={false}
+                rowKey="id"
+                size="small"
+              />
+            </Card>
+          ))}
+        </div>
 
-      <EditChapter
-        visible={isEditChapterVisible}
-        onCancel={() => {
-          setIsEditChapterVisible(false);
-          setSelectedChapter(null);
-        }}
-        onSuccess={handleChapterSuccess}
-        chapterData={selectedChapter}
-      />
+        <AddChapter
+          visible={isAddChapterVisible}
+          onCancel={() => setIsAddChapterVisible(false)}
+          onSuccess={handleChapterSuccess}
+          courseId={courseId}
+        />
 
-      <AddVideo
-        visible={isAddVideoVisible}
-        onCancel={() => {
-          setIsAddVideoVisible(false);
-          setSelectedChapterForVideo(null);
-        }}
-        onSuccess={handleVideoSuccess}
-        courseId={courseId}
-        chapterId={selectedChapterForVideo?.id}
-      />
+        <EditChapter
+          visible={isEditChapterVisible}
+          onCancel={() => {
+            setIsEditChapterVisible(false);
+            setSelectedChapter(null);
+          }}
+          onSuccess={handleChapterSuccess}
+          chapterData={selectedChapter}
+        />
 
-      <EditVideo
-        visible={isEditVideoVisible}
-        onCancel={() => {
-          setIsEditVideoVisible(false);
-          setSelectedVideo(null);
-        }}
-        onSuccess={handleVideoSuccess}
-        videoData={selectedVideo}
-      />
+        <AddVideo
+          visible={isAddVideoVisible}
+          onCancel={() => {
+            setIsAddVideoVisible(false);
+            setSelectedChapterForVideo(null);
+          }}
+          onSuccess={handleVideoSuccess}
+          courseId={courseId}
+          chapterId={selectedChapterForVideo?.id}
+        />
+
+        <EditVideo
+          visible={isEditVideoVisible}
+          onCancel={() => {
+            setIsEditVideoVisible(false);
+            setSelectedVideo(null);
+          }}
+          onSuccess={handleVideoSuccess}
+          videoData={selectedVideo}
+        />
+
+        <DocumentManagement
+          visible={isDocumentModalVisible}
+          onCancel={() => {
+            setIsDocumentModalVisible(false);
+            setSelectedVideoForDocs(null);
+          }}
+          courseId={courseId}
+          chapterId={selectedVideoForDocs?.chapter_id}
+          videoId={selectedVideoForDocs?.id}
+        />
+      </Spin>
     </div>
   );
 };

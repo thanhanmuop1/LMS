@@ -114,3 +114,53 @@
 .quiz-review .ant-radio-disabled.ant-radio-checked .ant-radio-inner::after {
   background-color: #1890ff !important;
 }
+
+.quiz-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quiz-timer .ant-progress-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.quiz-timer .ant-progress-circle.ant-progress-status-exception .ant-progress-text {
+  color: #ff4d4f;
+}
+
+.quiz-intro-card {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.quiz-info {
+  margin: 24px 0;
+}
+
+.quiz-rules {
+  margin: 24px 0;
+}
+
+.quiz-rules-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.quiz-rules-list li {
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.quiz-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.quiz-actions button {
+  min-width: 200px;
+  height: 45px;
+  font-size: 16px;
+}

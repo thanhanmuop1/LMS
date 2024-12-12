@@ -37,13 +37,13 @@ const login = async (req, res) => {
         // Get user by email
         const user = await auth.getUserByEmail(email);
         if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ message: 'Invalid email or password' });
         }
 
         // Check password
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ message: 'Invalid email or password' });
         }
 
         // Generate JWT token
@@ -69,8 +69,24 @@ const login = async (req, res) => {
     }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    // Only allow admin to fetch users
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    const users = await auth.getAllUsers();
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
     register,
-    login
+    login,
+    getAllUsers,
 };
 

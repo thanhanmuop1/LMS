@@ -63,7 +63,8 @@ const quiz = {
         return new Promise((resolve, reject) => {
             db.query(
                 `SELECT q.*, qq.id as question_id, qq.question_text, qq.points,
-                 qo.id as option_id, qo.option_text, qo.is_correct
+                 qo.id as option_id, qo.option_text, qo.is_correct,
+                 q.video_id, q.quiz_type
                  FROM quizzes q
                  LEFT JOIN quiz_questions qq ON q.id = qq.quiz_id
                  LEFT JOIN quiz_options qo ON qq.id = qo.question_id
@@ -84,6 +85,8 @@ const quiz = {
                                 id: row.id,
                                 title: row.title,
                                 chapter_id: row.chapter_id,
+                                video_id: row.video_id,
+                                quiz_type: row.quiz_type,
                                 duration_minutes: row.duration_minutes,
                                 passing_score: row.passing_score,
                                 questions: {}
