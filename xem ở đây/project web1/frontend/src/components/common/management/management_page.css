@@ -1,0 +1,17 @@
+.management-container {
+  padding: 24px;
+}
+
+.management-tabs {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  min-height: calc(100vh - 140px);
+}
+
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+} 

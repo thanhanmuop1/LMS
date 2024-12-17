@@ -1,0 +1,19 @@
+.quiz-review {
+  padding: 16px;
+}
+
+.quiz-review .question {
+  margin-bottom: 16px;
+}
+
+.quiz-review .options {
+  margin-top: 12px;
+}
+
+.quiz-review .option {
+  transition: all 0.3s;
+}
+
+.quiz-review .option:hover {
+  opacity: 0.9;
+} 
