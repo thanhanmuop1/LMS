@@ -3,6 +3,7 @@ import axios from 'axios';
 import CourseManagement from './courses/course_management';
 import TeacherDashboard from './dashboard/dashboard';
 import ManagementPageBase from '../common/management/ManagementPageBase';
+import QuizManagement from './quizzes/quiz_management';
 
 const TeacherPage = () => {
   const [courses, setCourses] = useState([]);
@@ -42,6 +43,11 @@ const TeacherPage = () => {
         onCourseAdded={fetchCourses}
       />,
     },
+    {
+      key: '3',
+      label: 'Quiz',
+      children: <QuizManagement />,
+    }
   ];
 
   return <ManagementPageBase items={items} />;

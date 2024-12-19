@@ -60,6 +60,11 @@ router.post('/quizzes', teacherController.createQuiz);
 router.put('/quizzes/:id', teacherController.updateQuiz);
 router.delete('/quizzes/:id', teacherController.deleteQuiz);
 
+// Video-Quiz routes
+router.get('/videos/:videoId/available-quizzes', teacherController.getAvailableQuizzesForVideo);
+router.post('/videos/:videoId/quiz', teacherController.assignQuizToVideo);
+router.delete('/videos/:videoId/quiz/:quizId', teacherController.unassignQuizFromVideo);
+
 // Question routes
 router.get('/quizzes/:quizId/questions', teacherController.getQuizQuestions);
 router.post('/quizzes/:quizId/questions', teacherController.addQuestions);

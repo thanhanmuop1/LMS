@@ -12,7 +12,10 @@ const QuizManagement = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/courses');
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/teacher/courses', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       setCourses(response.data);
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -23,7 +26,10 @@ const QuizManagement = () => {
   const fetchQuizzes = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/quizzes');
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/teacher/quizzes', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       setQuizzes(response.data);
     } catch (error) {
       console.error('Error fetching quizzes:', error);
@@ -41,7 +47,7 @@ const QuizManagement = () => {
   const handleDelete = async (quizId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/quizzes/${quizId}`, {
+      await axios.delete(`http://localhost:5000/teacher/quizzes/${quizId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       message.success('Xóa quiz thành công');
@@ -52,15 +58,15 @@ const QuizManagement = () => {
   };
 
   const handleAdd = () => {
-    navigate('/admin/quizzes/create');
+    navigate('/teacher/quizzes/create');
   };
 
   const handleEdit = (quiz) => {
-    navigate(`/admin/quizzes/edit/${quiz.id}`, { state: { quizData: quiz } });
+    navigate(`/teacher/quizzes/edit/${quiz.id}`, { state: { quizData: quiz } });
   };
 
   const handleQuestionClick = (quiz) => {
-    navigate(`/admin/quizzes/${quiz.id}/questions`, { state: { quizData: quiz } });
+    navigate(`/teacher/quizzes/${quiz.id}/questions`, { state: { quizData: quiz } });
   };
 
   return (
@@ -72,7 +78,7 @@ const QuizManagement = () => {
       onAdd={handleAdd}
       onEdit={handleEdit}
       onQuestionClick={handleQuestionClick}
-      role="admin"
+      role="teacher"
     />
   );
 };

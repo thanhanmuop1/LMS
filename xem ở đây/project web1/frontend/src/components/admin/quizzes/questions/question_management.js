@@ -32,20 +32,24 @@ const QuestionManagement = () => {
           headers: { 'Authorization': `Bearer ${token}` }
         }
       );
+      
       const quizData = response.data;
       setQuiz(quizData);
 
+      // Format questions data
       const formattedQuestions = quizData.questions?.map(q => ({
+        id: q.id,
         question_text: q.question_text,
-        allows_multiple_correct: q.allows_multiple_correct === 1 || q.allows_multiple_correct === true,
+        points: q.points || 1,
+        allows_multiple_correct: q.allows_multiple_correct,
         options: q.options?.map(opt => ({
+          id: opt.id,
           option_text: opt.option_text,
-          is_correct: opt.is_correct === 1 || opt.is_correct === true
+          is_correct: opt.is_correct === true // Đảm bảo boolean
         })) || []
       })) || [];
 
       setQuestions(formattedQuestions);
-      
       form.setFieldsValue({
         questions: formattedQuestions
       });
@@ -59,29 +63,51 @@ const QuestionManagement = () => {
     }
   };
 
-  const handleSubmit = async (values) => {
+  const handleDeleteQuestion = async (questionId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(
+        `http://localhost:5000/questions/${questionId}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      message.success('Xóa câu hỏi thành công');
+      fetchQuizData();
+    } catch (error) {
+      console.error('Error deleting question:', error);
+      message.error('Có lỗi xảy ra khi xóa câu hỏi');
+    }
+  };
+
+  const handleUpdateQuestions = async (values) => {
     try {
       setSubmitting(true);
       const token = localStorage.getItem('token');
 
+      // Format lại dữ liệu trước khi gửi
       const formattedQuestions = values.questions?.map(q => ({
+        id: q.id, // Giữ lại id nếu có
         question_text: q.question_text,
-        points: quiz.points_per_question || 1,
-        allows_multiple_correct: q.allows_multiple_correct,
+        points: q.points || 1,
+        allows_multiple_correct: q.allows_multiple_correct === true,
         options: q.options?.map(opt => ({
+          id: opt.id, // Giữ lại id nếu có
           option_text: opt.option_text,
-          is_correct: opt.is_correct === true
+          is_correct: opt.is_correct === true ? 1 : 0 // Chuyển về 1/0 cho database
         }))
       }));
-
+      
       await axios.put(
         `http://localhost:5000/quizzes/${quizId}/questions`,
         { questions: formattedQuestions },
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
       );
 
       message.success('Cập nhật câu hỏi thành công');
-      fetchQuizData();
+      fetchQuizData(); // Tải lại dữ liệu sau khi cập nhật
     } catch (error) {
       console.error('Error updating questions:', error);
       message.error('Có lỗi xảy ra khi cập nhật câu hỏi');
@@ -92,7 +118,7 @@ const QuestionManagement = () => {
 
   const showQuestionTypeModal = () => {
     setIsModalVisible(true);
-    setQuestionType('single'); // Reset to default
+    setQuestionType('single');
   };
 
   const handleModalOk = () => {
@@ -122,7 +148,7 @@ const QuestionManagement = () => {
 
         <Form
           form={form}
-          onFinish={handleSubmit}
+          onFinish={handleUpdateQuestions}
           layout="vertical"
           disabled={loading}
           initialValues={{ questions: questions }}
@@ -130,16 +156,17 @@ const QuestionManagement = () => {
           <Form.List name="questions">
             {(fields, { add, remove }) => (
               <>
-                {fields.map(({ key, name, ...restField }) => (
+                {fields.map((field, index) => (
                   <QuestionItem
-                    key={key}
+                    key={field.key}
                     form={form}
-                    name={name}
+                    name={field.name}
                     remove={remove}
-                    restField={restField}
+                    restField={field}
+                    index={index}
+                    handleDeleteQuestion={handleDeleteQuestion}
                   />
                 ))}
-
                 <Button
                   type="dashed"
                   onClick={showQuestionTypeModal}

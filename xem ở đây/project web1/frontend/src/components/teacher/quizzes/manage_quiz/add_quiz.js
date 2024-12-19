@@ -7,8 +7,8 @@ const AddQuiz = ({ visible, onCancel, onSuccess }) => {
       visible={visible}
       onCancel={onCancel}
       onSuccess={onSuccess}
-      role="admin"
-      apiEndpoint="http://localhost:5000/quizzes"
+      role="teacher"
+      apiEndpoint="http://localhost:5000/teacher/quizzes"
     />
   );
 };

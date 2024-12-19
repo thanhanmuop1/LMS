@@ -4,6 +4,7 @@ const quizController = require('../controllers/quizController');
 const authMiddleware = require('../middleware/auth');
 
 router.get('/videos/:videoId/quizzes', authMiddleware.authMiddleware, quizController.getQuizzesForVideo);
+router.get('/videos/:videoId/available-quizzes', authMiddleware.authMiddleware, quizController.getQuizzesForVideo);
 router.get('/chapters/:chapterId/quizzes', quizController.getQuizzesByChapter);
 router.get('/courses/:courseId/quizzes', quizController.getQuizzesByCourse);
 router.get('/quizzes/:quizId/result', authMiddleware.authMiddleware , quizController.getQuizResult);

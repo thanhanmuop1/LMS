@@ -9,7 +9,13 @@ const register = async (req, res) => {
         // Kiểm tra email đã tồn tại
         const existingUser = await auth.getUserByEmail(email);
         if (existingUser) {
-            return res.status(400).json({ message: 'Email đã được đăng ký' });
+            return res.status(400).json({ message: 'Email đã tồn tại' });
+        }
+
+        // Kiểm tra username đã tồn tại
+        const existingUsername = await auth.getUserByUsername(username);
+        if (existingUsername) {
+            return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại' });
         }
 
         // Hash password

@@ -207,7 +207,22 @@ const quizController = {
     getQuizzesForVideo: async (req, res) => {
         try {
             const videoId = req.params.videoId;
-            const quizzes = await quiz.getAllQuizzesForVideo(videoId);
+            let quizzes;
+
+            // Nếu là admin, lấy tất cả quiz
+            if (req.user.role === 'admin') {
+                quizzes = await quiz.getAllQuizzes();
+                // Format lại response để thêm trạng thái is_assigned
+                quizzes = quizzes.map(q => ({
+                    ...q,
+                    is_assigned: q.video_id === parseInt(videoId),
+                    question_count: q.question_count || 0
+                }));
+            } else {
+                // Nếu là teacher, chỉ lấy quiz của teacher đó
+                quizzes = await quiz.getAvailableQuizzesForVideo(videoId, req.user.id);
+            }
+
             res.json(quizzes);
         } catch (error) {
             console.error('Error getting quizzes for video:', error);
@@ -287,7 +302,7 @@ const quizController = {
 
     updateQuizQuestions: async (req, res) => {
         try {
-            if (req.user.role !== 'admin') {
+            if (!['admin', 'teacher'].includes(req.user.role)) {
                 return res.status(403).json({ message: 'Không có quyền thực hiện' });
             }
 

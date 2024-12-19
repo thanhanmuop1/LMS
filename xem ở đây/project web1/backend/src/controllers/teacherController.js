@@ -316,20 +316,19 @@ const teacherController = {
   createQuiz: async (req, res) => {
     try {
       const teacherId = req.user.id;
-      const { title, duration_minutes, passing_score, points_per_question } = req.body;
+      const { title, duration_minutes, passing_score } = req.body;
 
-      const quizData = {
+      const result = await quiz.createQuiz({
         title,
         duration_minutes,
         passing_score,
-        points_per_question,
-        teacher_id: teacherId,
-        course_id: null // Cho phép course_id là null
-      };
+        teacher_id: teacherId
+      });
 
-      // Sử dụng quiz.createQuiz thay vì lms.createQuiz
-      const quizId = await quiz.createQuiz(quizData);
-      res.status(201).json({ id: quizId, ...quizData });
+      res.status(201).json({ 
+        message: 'Tạo quiz thành công',
+        quizId: result.insertId 
+      });
     } catch (error) {
       console.error('Error creating quiz:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -742,6 +741,70 @@ const teacherController = {
       res.json({ message: 'Cập nhật câu hỏi thành công' });
     } catch (error) {
       console.error('Error updating questions:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+
+  getAvailableQuizzesForVideo: async (req, res) => {
+    try {
+      const teacherId = req.user.id;
+      const videoId = req.params.videoId;
+      
+      // Kiểm tra quyền sở hữu video
+      const video = await lms.getVideoById(videoId);
+      const course = await lms.getCourseById(video.course_id);
+      if (!course || course.teacher_id !== teacherId) {
+        return res.status(403).json({ message: 'Không có quyền truy cập video này' });
+      }
+
+      // Lấy danh sách quiz của giáo viên chưa được gán cho video này
+      const availableQuizzes = await quiz.getAvailableQuizzesForVideo(videoId, teacherId);
+      res.json(availableQuizzes);
+    } catch (error) {
+      console.error('Error getting available quizzes:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+
+  assignQuizToVideo: async (req, res) => {
+    try {
+      const teacherId = req.user.id;
+      const videoId = req.params.videoId;
+      const { quiz_id } = req.body;
+
+      // Kiểm tra quyền sở hữu video và quiz
+      const video = await lms.getVideoById(videoId);
+      const course = await lms.getCourseById(video.course_id);
+      const quizInfo = await quiz.getQuizById(quiz_id);
+
+      if (!course || course.teacher_id !== teacherId || quizInfo.teacher_id !== teacherId) {
+        return res.status(403).json({ message: 'Không có quyền thực hiện' });
+      }
+
+      await quiz.assignQuizToVideo(quiz_id, videoId);
+      res.json({ message: 'Gán quiz thành công' });
+    } catch (error) {
+      console.error('Error assigning quiz:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+
+  unassignQuizFromVideo: async (req, res) => {
+    try {
+      const teacherId = req.user.id;
+      const { videoId, quizId } = req.params;
+
+      // Kiểm tra quyền sở hữu
+      const video = await lms.getVideoById(videoId);
+      const course = await lms.getCourseById(video.course_id);
+      if (!course || course.teacher_id !== teacherId) {
+        return res.status(403).json({ message: 'Không có quyền thực hiện' });
+      }
+
+      await quiz.unassignQuizFromVideo(quizId, videoId);
+      res.json({ message: 'Hủy gán quiz thành công' });
+    } catch (error) {
+      console.error('Error unassigning quiz:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   }

@@ -19,15 +19,7 @@ const Login = () => {
             
             message.success('Đăng nhập thành công');
             
-            // Kiểm tra role trước khi chuyển hướng
-            const currentRole = localStorage.getItem('role');
-            console.log('Stored role:', currentRole); // Debug log
-            
-            if (currentRole === 'admin') {
-                navigate('/admin');
-            } else if (currentRole === 'teacher') {
-                navigate('/teacher');
-            }
+            navigate('/');
         } catch (error) {
             console.error('Login error:', error); // Debug log
             message.error(error.response?.data?.message || 'Đăng nhập thất bại');

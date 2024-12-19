@@ -4,8 +4,8 @@ import CreateQuizBase from '../../common/quiz/CreateQuizBase';
 const CreateQuiz = () => {
   return (
     <CreateQuizBase
-      role="admin"
-      apiEndpoint="http://localhost:5000/quizzes"
+      role="teacher"
+      apiEndpoint="http://localhost:5000/teacher/quizzes"
     />
   );
 };

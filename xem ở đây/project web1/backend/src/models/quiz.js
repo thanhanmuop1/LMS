@@ -248,34 +248,25 @@ const quiz = {
     createQuiz: (quizData) => {
         return new Promise((resolve, reject) => {
             const query = `
-                INSERT INTO quizzes (
-                    title, 
-                    duration_minutes, 
-                    passing_score,
-                    teacher_id,
-                    course_id,
-                    quiz_type
-                ) VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO quizzes 
+                (title, duration_minutes, passing_score, teacher_id) 
+                VALUES (?, ?, ?, ?)
             `;
             
-            db.query(
-                query,
-                [
-                    quizData.title,
-                    quizData.duration_minutes || 30,  // default 30 phút
-                    quizData.passing_score || 60,     // default 60 điểm
-                    quizData.teacher_id,
-                    quizData.course_id || null,
-                    quizData.quiz_type || null
-                ],
-                (error, results) => {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(results.insertId);
+            const values = [
+                quizData.title,
+                quizData.duration_minutes,
+                quizData.passing_score,
+                quizData.teacher_id
+            ];
+
+            db.query(query, values, (error, results) => {
+                if (error) {
+                    reject(error);
+                    return;
                 }
-            );
+                resolve(results);
+            });
         });
     },
 
@@ -423,13 +414,6 @@ const quiz = {
                         return;
                     }
 
-                    // Kiểm tra loại quiz phù hợp
-                    if ((video_id && quiz.quiz_type !== 'video') || 
-                        (chapter_id && quiz.quiz_type !== 'chapter')) {
-                        reject(new Error('Loại quiz không phù hp'));
-                        return;
-                    }
-
                     // Cập nhật quiz
                     db.query(
                         'UPDATE quizzes SET video_id = ?, chapter_id = ?, course_id = ? WHERE id = ?',
@@ -451,19 +435,25 @@ const quiz = {
         return new Promise((resolve, reject) => {
             const query = `
                 SELECT 
-                    q.*, 
-                    c.title as course_title,
+                    q.id,
+                    q.title,
+                    q.duration_minutes,
+                    q.passing_score,
+                    q.quiz_type,
+                    q.video_id,
+                    q.teacher_id,
+                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count,
                     v.title as video_title,
-                    ch.title as chapter_title,
-                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
+                    c.title as chapter_title,
+                    t.full_name as teacher_name
                 FROM quizzes q
-                LEFT JOIN courses c ON q.course_id = c.id
                 LEFT JOIN videos v ON q.video_id = v.id
-                LEFT JOIN chapters ch ON q.chapter_id = ch.id
+                LEFT JOIN chapters c ON q.chapter_id = c.id
+                LEFT JOIN users t ON q.teacher_id = t.id
                 ORDER BY q.created_at DESC
             `;
-            
-            db.query(query, (error, results) => {
+
+            db.query(query, [], (error, results) => {
                 if (error) {
                     reject(error);
                     return;
@@ -579,15 +569,70 @@ const quiz = {
     getQuizById: (quizId) => {
         return new Promise((resolve, reject) => {
             const query = `
-                SELECT * FROM quizzes 
-                WHERE id = ?
+                SELECT 
+                    q.*,
+                    q.teacher_id,
+                    qq.id as question_id,
+                    qq.question_text,
+                    qq.points,
+                    qq.allows_multiple_correct,
+                    qo.id as option_id,
+                    qo.option_text,
+                    qo.is_correct
+                FROM quizzes q
+                LEFT JOIN quiz_questions qq ON q.id = qq.quiz_id
+                LEFT JOIN quiz_options qo ON qq.id = qo.question_id
+                WHERE q.id = ?
+                ORDER BY qq.id, qo.id
             `;
+
             db.query(query, [quizId], (error, results) => {
                 if (error) {
                     reject(error);
                     return;
                 }
-                resolve(results[0]);
+
+                if (results.length === 0) {
+                    resolve(null);
+                    return;
+                }
+
+                // Format dữ liệu thành cấu trúc phân cấp
+                const quiz = {
+                    id: results[0].id,
+                    title: results[0].title,
+                    duration_minutes: results[0].duration_minutes,
+                    passing_score: results[0].passing_score,
+                    quiz_type: results[0].quiz_type,
+                    teacher_id: results[0].teacher_id,
+                    questions: []
+                };
+
+                const questionsMap = new Map();
+
+                results.forEach(row => {
+                    if (row.question_id && !questionsMap.has(row.question_id)) {
+                        questionsMap.set(row.question_id, {
+                            id: row.question_id,
+                            question_text: row.question_text,
+                            points: row.points || 1,
+                            allows_multiple_correct: row.allows_multiple_correct === 1,
+                            options: []
+                        });
+                    }
+
+                    if (row.question_id && row.option_id) {
+                        const question = questionsMap.get(row.question_id);
+                        question.options.push({
+                            id: row.option_id,
+                            option_text: row.option_text,
+                            is_correct: row.is_correct === 1 ? true : false // Đảm bảo giá trị boolean
+                        });
+                    }
+                });
+
+                quiz.questions = Array.from(questionsMap.values());
+                resolve(quiz);
             });
         });
     },
@@ -788,10 +833,19 @@ const quiz = {
     getQuizzesByTeacher: (teacherId) => {
         return new Promise((resolve, reject) => {
             const query = `
-                SELECT * FROM quizzes 
-                WHERE teacher_id = ?
-                ORDER BY created_at DESC
+                SELECT 
+                    q.*,
+                    v.title as video_title,
+                    c.title as chapter_title,
+                    COUNT(DISTINCT qq.id) as question_count
+                FROM quizzes q
+                LEFT JOIN videos v ON q.video_id = v.id
+                LEFT JOIN chapters c ON q.chapter_id = c.id
+                LEFT JOIN quiz_questions qq ON q.id = qq.quiz_id
+                WHERE q.teacher_id = ?
+                GROUP BY q.id
             `;
+
             db.query(query, [teacherId], (error, results) => {
                 if (error) {
                     reject(error);
@@ -939,6 +993,97 @@ const quiz = {
                 });
 
                 resolve(Array.from(questions.values()));
+            });
+        });
+    },
+
+    getAvailableQuizzesForVideo: (videoId, teacherId) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                SELECT 
+                    q.id,
+                    q.title,
+                    q.duration_minutes,
+                    q.passing_score,
+                    q.quiz_type,
+                    v.title as video_title,
+                    c.title as chapter_title,
+                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count,
+                    CASE 
+                        WHEN q.video_id = ? THEN true 
+                        ELSE false 
+                    END as is_assigned
+                FROM quizzes q
+                LEFT JOIN videos v ON q.video_id = v.id
+                LEFT JOIN chapters c ON q.chapter_id = c.id
+                WHERE 
+                    q.teacher_id = ?
+                    AND (q.video_id IS NULL OR q.video_id = ?)
+                ORDER BY q.created_at DESC
+            `;
+
+            db.query(query, [videoId, teacherId, videoId], (error, results) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                resolve(results);
+            });
+        });
+    },
+
+    assignQuizToVideo: (quizId, videoId) => {
+        return new Promise((resolve, reject) => {
+            // Đầu tiên lấy course_id từ video
+            const getCourseQuery = `
+                SELECT course_id FROM videos WHERE id = ?
+            `;
+
+            db.query(getCourseQuery, [videoId], (error, results) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+
+                const courseId = results[0]?.course_id;
+                const chapterId = results[0]?.chapter_id;
+                if (!courseId) {
+                    reject(new Error('Không tìm thấy thông tin khóa học của video'));
+                    return;
+                }
+
+                // Sau đó cập nhật quiz với cả video_id và course_id
+                const updateQuery = `
+                    UPDATE quizzes 
+                    SET video_id = ?, chapter_id = ?, course_id = ?
+                    WHERE id = ?
+                `;
+
+                db.query(updateQuery, [videoId, chapterId, courseId, quizId], (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                });
+            });
+        });
+    },
+
+    unassignQuizFromVideo: (quizId, videoId) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                UPDATE quizzes 
+                SET video_id = NULL, course_id = NULL
+                WHERE id = ? AND video_id = ?
+            `;
+
+            db.query(query, [quizId, videoId], (error, results) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                resolve(results);
             });
         });
     }

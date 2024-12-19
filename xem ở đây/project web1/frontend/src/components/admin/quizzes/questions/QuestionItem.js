@@ -1,11 +1,13 @@
 import React from 'react';
-import { Form, Input, Button, Card, Space } from 'antd';
+import { Card, Form, Input, Button, Space } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import SingleAnswerOption from './SingleAnswerOption';
 import MultipleAnswerOption from './MultipleAnswerOption';
+import SingleAnswerOption from './SingleAnswerOption';
 
 const QuestionItem = ({ form, name, remove, restField }) => {
   const allows_multiple_correct = Form.useWatch(['questions', name, 'allows_multiple_correct'], form);
+
+  const { key, ...restFieldWithoutKey } = restField || {};
 
   return (
     <Card
@@ -26,7 +28,7 @@ const QuestionItem = ({ form, name, remove, restField }) => {
       style={{ marginBottom: 16 }}
     >
       <Form.Item
-        {...restField}
+        {...restFieldWithoutKey}
         name={[name, 'question_text']}
         rules={[{ required: true, message: 'Vui lòng nhập câu hỏi' }]}
       >
@@ -38,7 +40,7 @@ const QuestionItem = ({ form, name, remove, restField }) => {
       </Form.Item>
 
       <Form.Item
-        {...restField}
+        {...restFieldWithoutKey}
         name={[name, 'allows_multiple_correct']}
         hidden
       >
@@ -49,27 +51,29 @@ const QuestionItem = ({ form, name, remove, restField }) => {
         <Form.List name={[name, 'options']}>
           {(fields, { add, remove: removeOption }) => (
             <>
-              {fields.map((optionField, index) => (
-                allows_multiple_correct ? (
+              {fields.map((field, index) => {
+                const { key: fieldKey, ...fieldProps } = field;
+                
+                return allows_multiple_correct ? (
                   <MultipleAnswerOption
-                    key={optionField.key}
-                    optionField={optionField}
+                    key={fieldKey}
+                    optionField={fieldProps}
                     index={index}
                     removeOption={removeOption}
-                    restField={restField}
+                    restField={restFieldWithoutKey}
                   />
                 ) : (
                   <SingleAnswerOption
-                    key={optionField.key}
+                    key={fieldKey}
                     form={form}
                     name={name}
-                    optionField={optionField}
+                    optionField={fieldProps}
                     index={index}
                     removeOption={removeOption}
-                    restField={restField}
+                    restField={restFieldWithoutKey}
                   />
-                )
-              ))}
+                );
+              })}
               <Button
                 type="dashed"
                 onClick={() => add()}

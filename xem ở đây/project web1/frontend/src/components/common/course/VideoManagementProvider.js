@@ -97,12 +97,18 @@ const VideoManagementProvider = ({
         : { quiz_id: quizId };
 
       await axios[method](endpoint, data, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       
       message.success('Gán quiz thành công');
+      await fetchAvailableQuizzes(videoId);
+      fetchCourseData();
       return true;
     } catch (error) {
+      console.error('Error assigning quiz:', error);
       message.error('Lỗi khi gán quiz');
       return false;
     }
@@ -116,20 +122,28 @@ const VideoManagementProvider = ({
         : `${baseUrl}/videos/${videoId}/quiz/${quizId}`;
       
       const method = role === 'admin' ? 'put' : 'delete';
-      const data = role === 'admin'
-        ? {
-            video_id: videoId,
-            chapter_id: videos.find(v => v.id === videoId)?.chapter_id
-          }
-        : undefined;
+      const config = {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      };
 
-      await axios[method](endpoint, data ? { data } : {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      if (role === 'admin') {
+        await axios[method](endpoint, {
+          video_id: videoId,
+          chapter_id: videos.find(v => v.id === videoId)?.chapter_id
+        }, config);
+      } else {
+        await axios[method](endpoint, config);
+      }
 
       message.success('Hủy gán quiz thành công');
+      await fetchAvailableQuizzes(videoId);
+      fetchCourseData();
       return true;
     } catch (error) {
+      console.error('Error unassigning quiz:', error);
       message.error('Lỗi khi hủy gán quiz');
       return false;
     }

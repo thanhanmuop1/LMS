@@ -277,24 +277,31 @@ const lms = {
         });
     },
 
-    createVideo: (chapterId, courseId, title, videoUrl) => {
+    createVideo: ({ title, video_url, chapter_id, course_id }) => {
         return new Promise((resolve, reject) => {
             const query = `
-                INSERT INTO videos (title, video_url, chapter_id, course_id) 
-                VALUES (?, ?, ?, ?)
+                INSERT INTO videos 
+                (title, video_url, chapter_id, course_id, created_at) 
+                VALUES (?, ?, ?, ?, NOW())
             `;
-            
-            // Log để debug
-            console.log('Creating video with params:', { chapterId, courseId, title, videoUrl });
-            
-            db.query(query, [title, videoUrl, chapterId, courseId], (error, results) => {
-                if (error) {
-                    console.error('Database error:', error);
-                    reject(error);
-                    return;
+
+            db.query(
+                query,
+                [title, video_url, chapter_id, course_id],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve({
+                        id: results.insertId,
+                        title,
+                        video_url,
+                        chapter_id,
+                        course_id
+                    });
                 }
-                resolve(results);
-            });
+            );
         });
     },
 

@@ -24,7 +24,7 @@ const TeacherDashboard = ({ courses = [] }) => {
         <Col span={8}>
           <Card>
             <Statistic
-              title="Tổng số video"
+              title="Đang phát triển"
               value={totalVideos}
               prefix={<FileOutlined />}
               valueStyle={{ color: '#1890ff' }}
@@ -34,7 +34,7 @@ const TeacherDashboard = ({ courses = [] }) => {
         <Col span={8}>
           <Card>
             <Statistic
-              title="Tổng số tài liệu"
+              title="Đang phát triển"
               value={totalDocuments}
               prefix={<FileOutlined />}
               valueStyle={{ color: '#722ed1' }}
@@ -43,18 +43,17 @@ const TeacherDashboard = ({ courses = [] }) => {
         </Col>
       </Row>
 
-      <h2 style={{ marginTop: 32 }}>Khóa học của tôi</h2>
+      {/* <h2 style={{ marginTop: 32 }}>Khóa học của tôi</h2>
       <Row gutter={16}>
         {courses.map(course => (
           <Col span={8} key={course.id}>
             <Card title={course.title}>
               <p>Số video: {course.video_count || 0}</p>
               <p>Số tài liệu: {course.document_count || 0}</p>
-              <p>Số học viên: {course.student_count || 0}</p>
             </Card>
           </Col>
         ))}
-      </Row>
+      </Row> */}
     </div>
   );
 };

@@ -15,6 +15,7 @@ import QuestionManagement from './components/admin/quizzes/questions/question_ma
 import TeacherPage from './components/teacher/teacher_page';
 import TeacherVideoManagement from './components/teacher/courses/video_management';
 import TeacherDocumentManagement from './components/teacher/courses/manage_document/document_management';
+import CreateQuizTeacher from './components/teacher/quizzes/create_quiz';
 import { useEffect } from 'react';
 
 
@@ -22,8 +23,7 @@ function App() {
   useEffect(() => {
     const handleLoginSuccess = () => {
       const role = localStorage.getItem('role');
-      console.log('Login success event, role:', role); // Debug log
-      // Có thể thêm logic cập nhật UI ở đây
+      console.log('Login success event, role:', role);
     };
 
     window.addEventListener('loginSuccess', handleLoginSuccess);
@@ -57,6 +57,8 @@ function App() {
         <Route path="/admin/quizzes/create" element={<CreateQuiz />} />
         <Route path="/admin/quizzes/edit/:id" element={<CreateQuiz />} />
         <Route path="/admin/quizzes/:quizId/questions" element={<QuestionManagement />} />
+        
+        {/* Teacher Routes */}
         <Route 
           path="/teacher" 
           element={
@@ -80,6 +82,31 @@ function App() {
               <TeacherDocumentManagement />
             </PrivateRouteTeacher>
           } 
+        />
+        {/* Add new teacher quiz routes */}
+        <Route
+          path="/teacher/quizzes/create"
+          element={
+            <PrivateRouteTeacher>
+              <CreateQuizTeacher />
+            </PrivateRouteTeacher>
+          }
+        />
+        <Route
+          path="/teacher/quizzes/edit/:id"
+          element={
+            <PrivateRouteTeacher>
+              <CreateQuizTeacher />
+            </PrivateRouteTeacher>
+          }
+        />
+        <Route
+          path="/teacher/quizzes/:quizId/questions"
+          element={
+            <PrivateRouteTeacher>
+              <QuestionManagement />
+            </PrivateRouteTeacher>
+          }
         />
       </Routes>
     </Router>
