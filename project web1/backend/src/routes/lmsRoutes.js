@@ -58,4 +58,10 @@ router.post('/courses/upload-thumbnail', authMiddleware, thumbnailUpload.single(
 // Cập nhật trạng thái public của khóa học (cho cả admin và teacher)
 router.put('/courses/:courseId/visibility', authMiddleware, lmsControllers.updateCourseVisibility);
 
+// Thêm route để lấy danh sách học sinh theo khóa học
+router.get('/courses/:courseId/students',authMiddleware,lmsControllers.getStudentsByCourse);
+
+// Thêm route để xóa học sinh khỏi khóa học
+router.delete('/courses/:courseId/students/:userId', authMiddleware, lmsControllers.removeStudentFromCourse);
+
 module.exports = router;

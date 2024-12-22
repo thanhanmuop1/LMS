@@ -4,7 +4,10 @@ const lms = {
     getAllCourses: () => {
         return new Promise((resolve, reject) => {
             const query = `
-                SELECT c.*, u.full_name as teacher_name 
+                SELECT c.*, u.full_name as teacher_name,
+                       (SELECT COUNT(*) 
+                        FROM course_enrollments 
+                        WHERE course_id = c.id) as student_count
                 FROM courses c
                 LEFT JOIN users u ON c.teacher_id = u.id
                 ORDER BY c.created_at DESC
@@ -425,7 +428,10 @@ const lms = {
     getTeacherCourses: (teacherId) => {
         return new Promise((resolve, reject) => {
             const query = `
-                SELECT c.*, u.full_name as teacher_name 
+                SELECT c.*, u.full_name as teacher_name,
+                       (SELECT COUNT(*) 
+                        FROM course_enrollments 
+                        WHERE course_id = c.id) as student_count
                 FROM courses c
                 LEFT JOIN users u ON c.teacher_id = u.id
                 WHERE c.teacher_id = ?
@@ -586,6 +592,66 @@ const lms = {
             });
         });
     },
+
+    getStudentsByCourseId: (courseId) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                SELECT u.id, u.username, u.email, u.full_name, ce.enrolled_at
+                FROM users u
+                JOIN course_enrollments ce ON u.id = ce.user_id
+                WHERE ce.course_id = ?
+                ORDER BY ce.enrolled_at DESC
+            `;
+            
+            db.query(query, [courseId], (error, results) => {
+                if (error) {
+                    console.error('Error in getStudentsByCourseId:', error);
+                    reject(error);
+                    return;
+                }
+                resolve(results);
+            });
+        });
+    },
+
+    isStudentEnrolled: (studentId, courseId) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                SELECT COUNT(*) as count 
+                FROM course_enrollments 
+                WHERE student_id = ? AND course_id = ?
+            `;
+            
+            db.query(query, [studentId, courseId], (error, results) => {
+                if (error) {
+                    console.error('Error in isStudentEnrolled:', error);
+                    reject(error);
+                    return;
+                }
+                resolve(results[0].count > 0);
+            });
+        });
+    },
+
+    deleteStudentFromCourse: (courseId, userId) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                DELETE FROM course_enrollments 
+                WHERE course_id = ? AND user_id = ?
+            `;
+            
+            db.query(query, [courseId, userId], (error, results) => {
+                if (error) {
+                    console.error('Error deleting student from course:', error);
+                    reject(error);
+                    return;
+                }
+                resolve(results);
+            });
+        });
+    },
+
 }
+
 
 module.exports = lms;

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Button, Space, Image, Tag } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, TeamOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
-const CourseTableColumns = ({ onEdit, onDelete, role }) => {
+const CourseTableColumns = ({ onEdit, onDelete, role, onViewStudents}) => {
   const navigate = useNavigate();
 
   const handleRowClick = (record) => {
@@ -87,6 +87,22 @@ const CourseTableColumns = ({ onEdit, onDelete, role }) => {
         >
           {text}
         </div>
+      ),
+    },
+    {
+      title: 'Học viên',
+      dataIndex: 'student_count',
+      key: 'student_count',
+      render: (count, record) => (
+        <Button
+          type="link"
+          onClick={(e) => {
+            onViewStudents(record.id);
+          }}
+          icon={<TeamOutlined />}
+        >
+          {count || 0}
+        </Button>
       ),
     },
     {

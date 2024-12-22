@@ -63,7 +63,7 @@ const CreateQuizBase = ({ role, apiEndpoint }) => {
       });
     } catch (error) {
       message.error('Không thể tải thông tin quiz');
-      navigate(role === 'admin' ? '/admin/quizzes' : '/teacher/quizzes');
+      navigate(role === 'admin' ? '/admin/quiz' : '/teacher/quiz');
     } finally {
       setLoading(false);
     }
@@ -104,7 +104,7 @@ const CreateQuizBase = ({ role, apiEndpoint }) => {
         message.success('Tạo quiz thành công');
       }
       
-      navigate(role === 'admin' ? '/admin/quizzes' : '/teacher/quizzes');
+      navigate(role === 'admin' ? '/admin/quiz' : '/teacher/quiz');
     } catch (error) {
       message.error(`Có lỗi xảy ra khi ${isEditing ? 'cập nhật' : 'tạo'} quiz`);
     } finally {
@@ -166,7 +166,7 @@ const CreateQuizBase = ({ role, apiEndpoint }) => {
               {isEditing ? 'Cập nhật' : 'Tiếp tục'}
             </Button>
             <Button 
-              onClick={() => navigate(role === 'admin' ? '/admin/quizzes' : '/teacher/quizzes')} 
+              onClick={() => navigate(role === 'admin' ? '/admin/quiz' : '/teacher/quiz')} 
               style={{ marginLeft: 8 }}
             >
               Hủy

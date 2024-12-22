@@ -20,7 +20,7 @@ const AddCourse = ({ visible, onCancel, onSuccess }) => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+      console.log(values);
       message.success('Thêm khóa học thành công');
       form.resetFields();
       setImageUrl('');

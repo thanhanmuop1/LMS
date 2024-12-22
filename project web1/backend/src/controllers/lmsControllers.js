@@ -78,12 +78,12 @@ const createCourse = async (req, res) => {
 
         const { title, description, thumbnail, is_public } = req.body;
         const teacher_id = req.user.id; // Lấy ID của người tạo
-
+        
         const course = await lms.createCourse({ 
             title, 
             description, 
             thumbnail,
-            is_public: req.user.role === 'admin' ? is_public : false, // Teacher mặc định tạo khóa private
+            is_public,
             teacher_id
         });
         
@@ -407,6 +407,63 @@ const getCourseVisibility = async (req, res) => {
     }
 }
 
+const getStudentsByCourse = async (req, res) => {
+  try {
+    const courseId = req.params.courseId;
+    
+    // Kiểm tra khóa học tồn tại
+    const course = await lms.getCourseById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Không tìm thấy khóa học' });
+    }
+
+    // Kiểm tra quyền truy cập (chỉ admin và giáo viên của khóa học)
+    if (req.user.role !== 'admin' && 
+        (req.user.role === 'teacher' && course.teacher_id !== req.user.id)) {
+      return res.status(403).json({ 
+        message: 'Không có quyền xem danh sách học sinh của khóa học này' 
+      });
+    }
+
+    const students = await lms.getStudentsByCourseId(courseId);
+    res.json(students);
+  } catch (error) {
+    console.error('Error getting students by course:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const removeStudentFromCourse = async (req, res) => {
+    try {
+        const courseId = req.params.courseId;
+        const userId = req.params.userId;
+
+        // Kiểm tra khóa học tồn tại
+        const course = await lms.getCourseById(courseId);
+        if (!course) {
+            return res.status(404).json({ message: 'Không tìm thấy khóa học' });
+        }
+
+        // Kiểm tra quyền truy cập (chỉ admin và giáo viên của khóa học)
+        if (req.user.role !== 'admin' && 
+            (req.user.role === 'teacher' && course.teacher_id !== req.user.id)) {
+            return res.status(403).json({ 
+                message: 'Không có quyền xóa học viên khỏi khóa học này' 
+            });
+        }
+        
+        // Sau đó xóa khỏi khóa học
+        await lms.deleteStudentFromCourse(courseId, userId);
+        
+        res.status(200).json({ 
+            message: 'Đã xóa học viên khỏi khóa học thành công' 
+        });
+    } catch (error) {
+        console.error('Error removing student from course:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 module.exports = { 
     getAllCourses,
     getAllVideos,
@@ -428,6 +485,8 @@ module.exports = {
     getCompletedVideos,
     uploadThumbnail,
     updateCourseVisibility,
-    getCourseVisibility
+    getCourseVisibility,
+    getStudentsByCourse,
+    removeStudentFromCourse
 };
 

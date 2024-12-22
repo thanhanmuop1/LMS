@@ -19,13 +19,13 @@ const teacherController = {
   createCourse: async (req, res) => {
     try {
       const teacherId = req.user.id;
-      const { title, description, thumbnail } = req.body;
+      const { title, description, thumbnail, is_public } = req.body;
       const course = await lms.createCourse({
         title,
         description,
         thumbnail,
         teacher_id: teacherId,
-        is_public: false // Mặc định là private cho giáo viên
+        is_public
       });
       res.status(201).json(course);
     } catch (error) {
