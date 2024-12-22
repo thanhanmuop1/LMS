@@ -1,23 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Modal, Table, Button, Space, message, Upload, Spin } from 'antd';
-import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
+import { message } from 'antd';
 import axios from 'axios';
+import DocumentManagementBase from '../../../common/course/DocumentManagementBase';
 
 const DocumentManagement = ({ visible, onCancel, courseId, chapterId, videoId }) => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const fetchDocuments = useCallback(async () => {
-    if (!visible) return; // Không fetch nếu modal không hiển thị
+    if (!visible) return;
     
     try {
       setLoading(true);
       const response = await axios.get(`http://localhost:5000/documents`, {
-        params: {
-          courseId,
-          chapterId,
-          videoId
-        }
+        params: { courseId, chapterId, videoId }
       });
       setDocuments(response.data);
     } catch (error) {
@@ -35,9 +31,7 @@ const DocumentManagement = ({ visible, onCancel, courseId, chapterId, videoId })
     try {
       const token = localStorage.getItem('token');
       await axios.delete(`http://localhost:5000/documents/${documentId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       message.success('Xóa tài liệu thành công');
       fetchDocuments();
@@ -64,7 +58,7 @@ const DocumentManagement = ({ visible, onCancel, courseId, chapterId, videoId })
       courseId,
       chapterId,
       videoId,
-      title: '', // Sẽ được cập nhật trong onBeforeUpload
+      title: '',
     },
     beforeUpload: (file) => {
       const isValidType = [
@@ -81,7 +75,6 @@ const DocumentManagement = ({ visible, onCancel, courseId, chapterId, videoId })
         return false;
       }
 
-      // Cập nhật title từ tên file
       uploadProps.data.title = file.name;
       return true;
     },
@@ -95,62 +88,16 @@ const DocumentManagement = ({ visible, onCancel, courseId, chapterId, videoId })
     },
   };
 
-  const columns = [
-    {
-      title: 'Tên tài liệu',
-      dataIndex: 'title',
-      key: 'title',
-    },
-    {
-      title: 'Loại file',
-      dataIndex: 'file_type',
-      key: 'file_type',
-      render: (text) => text.toUpperCase(),
-    },
-    {
-      title: 'Hành động',
-      key: 'action',
-      render: (_, record) => (
-        <Space>
-          <Button type="link" onClick={() => handleDownload(record)}>
-            Tải xuống
-          </Button>
-          <Button 
-            type="link" 
-            danger 
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.id)}
-          />
-        </Space>
-      ),
-    },
-  ];
-
   return (
-    <Modal
-      title="Quản lý tài liệu"
-      open={visible}
+    <DocumentManagementBase
+      visible={visible}
       onCancel={onCancel}
-      width={800}
-      footer={[
-        <Button key="back" onClick={onCancel}>
-          Đóng
-        </Button>
-      ]}
-    >
-      <div style={{ marginBottom: 16 }}>
-        <Upload {...uploadProps}>
-          <Button icon={<UploadOutlined />}>Tải lên tài liệu</Button>
-        </Upload>
-      </div>
-      <Spin spinning={loading}>
-        <Table
-          columns={columns}
-          dataSource={documents}
-          rowKey="id"
-        />
-      </Spin>
-    </Modal>
+      documents={documents}
+      loading={loading}
+      uploadProps={uploadProps}
+      onDownload={handleDownload}
+      onDelete={handleDelete}
+    />
   );
 };
 

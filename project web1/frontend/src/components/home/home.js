@@ -1,11 +1,19 @@
 import React from 'react';
 import CardComponent from '../card/card';
+import Sidebar from '../sidebar/sidebar';
+import Navbar from '../navbar/navbar';
+import '../layout/layout.css';
 
 const Home = () => {
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Danh sách khóa học</h1>
-      <CardComponent />
+    <div className="layout">
+      <Sidebar />
+      <div className="main-content">
+        <Navbar />
+        <main className="content">
+          <CardComponent />
+        </main>
+      </div>
     </div>
   );
 };

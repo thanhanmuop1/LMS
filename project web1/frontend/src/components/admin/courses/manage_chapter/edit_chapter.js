@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, message } from 'antd';
-import axios from 'axios';
+import apiService from '../../../../services/apiService';
 
 const EditChapter = ({ visible, onCancel, onSuccess, chapterData }) => {
   const [form] = Form.useForm();
@@ -15,17 +15,18 @@ const EditChapter = ({ visible, onCancel, onSuccess, chapterData }) => {
 
   const handleSubmit = async (values) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/chapters/${chapterData.id}`, values, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      await apiService.put('updateChapter', values, { 
+        id: chapterData.id
       });
       
       message.success('Cập nhật chương thành công');
       onSuccess();
     } catch (error) {
-      message.error(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật chương');
+      console.error('Error updating chapter:', error);
+      const errorMessage = error.response?.data?.message || 
+                          error.message ||
+                          'Có lỗi xảy ra khi cập nhật chương';
+      message.error(errorMessage);
     }
   };
 

@@ -1,0 +1,3 @@
+# Thêm vào file .gitignore
+uploads/*
+!uploads/.gitkeep

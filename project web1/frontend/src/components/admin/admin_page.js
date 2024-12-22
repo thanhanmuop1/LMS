@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs } from 'antd';
 import axios from 'axios';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { message } from 'antd';
 import Dashboard from './dashboard/dashboard';
 import CourseManagement from './courses/course_management';
+import QuizManagement from './quizzes/quiz_management';
+import Navbar from '../navbar/navbar';
+import Sidebar from '../sidebar/sidebar';
 import './admin_page.css';
 
 const AdminPage = () => {
@@ -17,52 +21,51 @@ const AdminPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem('token');
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
       const [coursesResponse, usersResponse] = await Promise.all([
-        axios.get('http://localhost:5000/courses'),
-        axios.get('http://localhost:5000/users', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        })
+        axios.get('http://localhost:5000/courses', { headers }),
+        axios.get('http://localhost:5000/users', { headers })
       ]);
+
       setCourses(coursesResponse.data);
       setUsers(usersResponse.data);
     } catch (error) {
       console.error('Error fetching data:', error);
+      if (error.response?.status === 403) {
+        message.error('Không có quyền truy cập');
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCourseAdded = () => {
-    fetchData();
-  };
-
-  const items = [
-    {
-      key: '1',
-      label: 'Tổng quan',
-      children: <Dashboard courses={courses} users={users} />,
-    },
-    {
-      key: '2',
-      label: 'Quản lý khóa học',
-      children: <CourseManagement 
-        courses={courses} 
-        loading={loading} 
-        onCourseAdded={handleCourseAdded}
-      />,
-    },
-  ];
-
   return (
-    <div className="admin-container">
-      <Tabs 
-        defaultActiveKey="1" 
-        items={items}
-        type="card"
-        className="admin-tabs"
-      />
+    <div className="app-container">
+      <Sidebar />
+      <div className="main-content">
+        <Navbar />
+        <div className="page-content">
+          <div className="content-container">
+            <Routes>
+              <Route path="/" element={<Dashboard courses={courses} users={users} />} />
+              <Route path="/courses" element={
+                <CourseManagement 
+                  courses={courses} 
+                  loading={loading} 
+                  onCourseAdded={fetchData}
+                />
+              } />
+              <Route path="/quiz" element={<QuizManagement />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

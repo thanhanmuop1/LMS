@@ -5,7 +5,7 @@ const authMiddleware = require('../middleware/auth');
 
 // Upload document
 router.post('/documents', 
-    authMiddleware, 
+    authMiddleware.authMiddleware, 
     upload.single('file'), 
     documentController.uploadDocument
 );
@@ -18,7 +18,7 @@ router.get('/documents/:id/download', documentController.downloadDocument);
 
 // Delete document (chỉ admin mới có quyền xóa)
 router.delete('/documents/:id', 
-    authMiddleware, 
+    authMiddleware.authMiddleware, 
     documentController.deleteDocument
 );
 

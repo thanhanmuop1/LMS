@@ -1,19 +1,20 @@
 import React from 'react';
 import { Modal, Form, Input, message } from 'antd';
-import axios from 'axios';
+import apiService from '../../../../services/apiService';
 
 const AddChapter = ({ visible, onCancel, onSuccess, courseId }) => {
   const [form] = Form.useForm();
 
   const handleSubmit = async (values) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:5000/courses/${courseId}/chapters`, values, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
+      const role = localStorage.getItem('role');
+      if (!role) {
+        message.error('Vui lòng đăng nhập lại');
+        // Có thể chuyển hướng đến trang đăng nhập
+        return;
+      }
+
+      await apiService.post('chapters', values, { courseId });
       message.success('Thêm chương thành công');
       form.resetFields();
       onSuccess();

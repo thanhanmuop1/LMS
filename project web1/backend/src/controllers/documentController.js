@@ -6,7 +6,7 @@ const document = require('../models/document');
 // Cấu hình multer để lưu file
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const uploadDir = 'uploads';
+        const uploadDir = 'uploads/documents';
         // Tạo thư mục nếu chưa tồn tại
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir);

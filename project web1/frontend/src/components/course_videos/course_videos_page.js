@@ -4,6 +4,7 @@ import axios from 'axios';
 import Videos from './videos/videos';
 import Menu from './menu/menu';
 import Quiz from './quiz/Quiz';
+import CourseVideoNavbar from './components/CourseVideoNavbar';
 import './course_videos_page.css';
 import { message, List } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
@@ -18,6 +19,7 @@ const CourseVideosPage = () => {
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [courseInfo, setCourseInfo] = useState(null);
 
   const fetchDocuments = useCallback(async (videoId, chapterId) => {
     try {
@@ -61,9 +63,19 @@ const CourseVideosPage = () => {
     }
   }, [courseId, fetchDocuments]);
 
+  const fetchCourseInfo = useCallback(async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/courses/${courseId}`);
+      setCourseInfo(response.data);
+    } catch (error) {
+      console.error('Error fetching course info:', error);
+    }
+  }, [courseId]);
+
   useEffect(() => {
+    fetchCourseInfo();
     fetchData();
-  }, [fetchData]);
+  }, [fetchCourseInfo, fetchData]);
 
   const handleVideoSelect = (video) => {
     console.log('Selected video:', video);
@@ -94,57 +106,60 @@ const CourseVideosPage = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="course-videos-container">
-      <div className="menu-section">
-        <Menu
-          videos={videos}
-          chapters={chapters}
-          quizzes={quizzes}
-          onVideoSelect={handleVideoSelect}
-          onQuizSelect={handleQuizSelect}
-        />
-      </div>
-      <div className="content-section">
-        {selectedVideo && (
-          <>
-            <Videos 
-              video={selectedVideo} 
-              quizzes={quizzes.filter(q => 
-                q.video_id === selectedVideo.id || 
-                (q.chapter_id === selectedVideo.chapter_id && q.quiz_type === 'chapter')
-              )} 
-            />
-            {documents.length > 0 && (
-              <div className="documents-section">
-                <h3>Tài liệu</h3>
-                <List
-                  size="small"
-                  dataSource={documents}
-                  renderItem={doc => (
-                    <List.Item
-                      className="document-item"
-                      onClick={() => handleDownload(doc)}
-                    >
-                      <List.Item.Meta
-                        title={
-                          <span className="document-title">
-                            {doc.title}
-                            <span className="document-type">
-                              ({doc.file_type.toUpperCase()})
+    <div className="course-page-layout">
+      <CourseVideoNavbar courseTitle={courseInfo?.title} />
+      <div className="course-videos-container">
+        <div className="menu-section">
+          <Menu
+            videos={videos}
+            chapters={chapters}
+            quizzes={quizzes}
+            onVideoSelect={handleVideoSelect}
+            onQuizSelect={handleQuizSelect}
+          />
+        </div>
+        <div className="content-section">
+          {selectedVideo && (
+            <>
+              <Videos 
+                video={selectedVideo} 
+                quizzes={quizzes.filter(q => 
+                  q.video_id === selectedVideo.id || 
+                  (q.chapter_id === selectedVideo.chapter_id && q.quiz_type === 'chapter')
+                )} 
+              />
+              {documents.length > 0 && (
+                <div className="documents-section">
+                  <h3>Tài liệu</h3>
+                  <List
+                    size="small"
+                    dataSource={documents}
+                    renderItem={doc => (
+                      <List.Item
+                        className="document-item"
+                        onClick={() => handleDownload(doc)}
+                      >
+                        <List.Item.Meta
+                          title={
+                            <span className="document-title">
+                              {doc.title}
+                              <span className="document-type">
+                                ({doc.file_type.toUpperCase()})
+                              </span>
                             </span>
-                          </span>
-                        }
-                      />
-                    </List.Item>
-                  )}
-                />
-              </div>
-            )}
-          </>
-        )}
-        {selectedQuiz && Object.keys(selectedQuiz).length > 0 && (
-          <Quiz quiz={selectedQuiz} />
-        )}
+                          }
+                        />
+                      </List.Item>
+                    )}
+                  />
+                </div>
+              )}
+            </>
+          )}
+          {selectedQuiz && Object.keys(selectedQuiz).length > 0 && (
+            <Quiz quiz={selectedQuiz} />
+          )}
+        </div>
       </div>
     </div>
   );

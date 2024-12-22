@@ -6,7 +6,6 @@ import './videos.css';
 const Videos = ({ video, quizzes }) => {
   const [player, setPlayer] = useState(null);
   const [isAPIReady, setIsAPIReady] = useState(false);
-  const [showQuiz, setShowQuiz] = useState(false);
 
   // Hàm lấy videoId từ URL YouTube
   const getVideoId = (url) => {
@@ -48,7 +47,6 @@ const Videos = ({ video, quizzes }) => {
   // Tải video khi API sẵn sàng hoặc URL video thay đổi
   useEffect(() => {
     if (!isAPIReady || !video?.video_url) return;
-    setShowQuiz(false); // Reset quiz visibility when video changes
 
     const videoId = getVideoId(video.video_url);
     if (!videoId) {
@@ -56,13 +54,11 @@ const Videos = ({ video, quizzes }) => {
       return;
     }
 
-    // Hủy player cũ nếu có
     if (player) {
       player.destroy();
       setPlayer(null);
     }
 
-    // Tạo player mới
     const newPlayer = new window.YT.Player('youtube-player', {
       height: '100%',
       width: '100%',
@@ -86,12 +82,6 @@ const Videos = ({ video, quizzes }) => {
               );
               console.log('Video marked as watched');
               window.dispatchEvent(new Event('videoCompleted'));
-              
-              // Show quiz if exists for this video
-              const videoQuiz = quizzes?.find(q => q.video_id === video.id && q.quiz_type === 'video');
-              if (videoQuiz) {
-                setShowQuiz(true);
-              }
             } catch (error) {
               console.error('Error marking video as watched:', error);
             }
@@ -101,7 +91,7 @@ const Videos = ({ video, quizzes }) => {
     });
 
     setPlayer(newPlayer);
-  }, [video.video_url, isAPIReady, quizzes]);
+  }, [video.video_url, isAPIReady]);
 
   return (
     <div className="video-container">
@@ -111,10 +101,6 @@ const Videos = ({ video, quizzes }) => {
           <div id="youtube-player"></div>
         </div>
       </div>
-      
-      {showQuiz && quizzes?.find(q => q.video_id === video.id) && (
-        <Quiz quiz={quizzes.find(q => q.video_id === video.id)} />
-      )}
     </div>
   );
 };

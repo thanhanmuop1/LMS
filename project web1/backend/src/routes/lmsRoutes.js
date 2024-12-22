@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const lmsControllers = require('../controllers/lmsControllers');
-const authMiddleware = require('../middleware/auth');
+const { authMiddleware, authorizeAdmin } = require('../middleware/auth');
+const multer = require('multer');
+const path = require('path');
 
 router.get('/courses', lmsControllers.getAllCourses);
 router.get('/videos', lmsControllers.getAllVideos);
@@ -21,5 +23,39 @@ router.post('/chapters/:chapterId/videos', authMiddleware, lmsControllers.create
 router.put('/videos/:videoId', authMiddleware, lmsControllers.updateVideo);
 router.delete('/videos/:videoId', authMiddleware, lmsControllers.deleteVideo);
 router.post('/videos/:videoId/mark-watched', authMiddleware, lmsControllers.markVideoAsWatched);
+
+// Cấu hình multer cho upload thumbnail
+const thumbnailStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/thumbnails');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'thumbnail-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const thumbnailUpload = multer({ 
+  storage: thumbnailStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+      cb(null, true);
+    } else {
+      cb(new Error('Chỉ chấp nhận file ảnh!'));
+    }
+  }
+});
+
+// Thêm route upload thumbnail
+router.post('/courses/upload-thumbnail', authMiddleware, thumbnailUpload.single('thumbnail'), lmsControllers.uploadThumbnail);
+
+// Cập nhật trạng thái public của khóa học (cho cả admin và teacher)
+router.put('/courses/:courseId/visibility', authMiddleware, lmsControllers.updateCourseVisibility);
 
 module.exports = router;

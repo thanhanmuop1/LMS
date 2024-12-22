@@ -131,8 +131,7 @@
 }
 
 .quiz-intro-card {
-  max-width: 800px;
-  margin: 0 auto;
+  padding: 24px;
 }
 
 .quiz-info {
@@ -149,13 +148,11 @@
 }
 
 .quiz-rules-list li {
-  margin: 8px 0;
-  line-height: 1.5;
+  margin-bottom: 8px;
 }
 
 .quiz-actions {
-  display: flex;
-  justify-content: center;
+  text-align: center;
   margin-top: 32px;
 }
 
@@ -163,4 +160,27 @@
   min-width: 200px;
   height: 45px;
   font-size: 16px;
+}
+
+.multiple-choice-indicator {
+  font-size: 0.9em;
+  color: #1890ff;
+  font-style: italic;
+  margin-left: 8px;
+}
+
+.quiz-question {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.question-text {
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.quiz-options {
+  width: 100%;
 }

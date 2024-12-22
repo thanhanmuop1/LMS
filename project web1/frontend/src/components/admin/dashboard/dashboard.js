@@ -1,42 +1,58 @@
 import React from 'react';
 import { Card, Row, Col, Statistic } from 'antd';
-import { BookOutlined, UserOutlined} from '@ant-design/icons';
+import { UserOutlined, ReadOutlined, FileOutlined } from '@ant-design/icons';
 
-const Dashboard = ({ courses, users }) => {
-  const studentCount = users?.filter(user => user.role !== 'admin').length || 0;
-  const teacherCount = users?.filter(user => user.role === 'teacher').length || 0;
+const Dashboard = ({ courses = [], users = [] }) => {
+  const totalStudents = users.filter(user => user.role === 'student').length;
+  const totalTeachers = users.filter(user => user.role === 'teacher').length;
+  const totalCourses = courses.length;
 
   return (
     <div className="dashboard">
-      <h2>Tổng quan hệ thống</h2>
-      <Row gutter={16}>
+      <h1>Tổng quan hệ thống</h1>
+      <Row gutter={16} style={{ marginTop: 24 }}>
+        <Col span={8}>
+          <Card>
+            <Statistic
+              title="Tổng số học viên"
+              value={totalStudents}
+              prefix={<UserOutlined />}
+              valueStyle={{ color: '#3f8600' }}
+            />
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card>
+            <Statistic
+              title="Tổng số giảng viên"
+              value={totalTeachers}
+              prefix={<UserOutlined />}
+              valueStyle={{ color: '#1890ff' }}
+            />
+          </Card>
+        </Col>
         <Col span={8}>
           <Card>
             <Statistic
               title="Tổng số khóa học"
-              value={courses.length}
-              prefix={<BookOutlined />}
+              value={totalCourses}
+              prefix={<ReadOutlined />}
+              valueStyle={{ color: '#722ed1' }}
             />
           </Card>
         </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Giảng viên"
-              value={teacherCount}
-              prefix={<UserOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Học viên"
-              value={studentCount}
-              prefix={<UserOutlined />}
-            />
-          </Card>
-        </Col>
+      </Row>
+
+      <h2 style={{ marginTop: 32 }}>Khóa học mới nhất</h2>
+      <Row gutter={16}>
+        {courses.slice(0, 3).map(course => (
+          <Col span={8} key={course.id}>
+            <Card title={course.title}>
+              <p>Giảng viên: {course.teacher_name || 'Chưa phân công'}</p>
+              <p>Số bài học: {course.lesson_count || 0}</p>
+            </Card>
+          </Col>
+        ))}
       </Row>
     </div>
   );

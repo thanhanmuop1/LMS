@@ -54,3 +54,11 @@
   background: #fafafa;
   border-radius: 4px;
 }
+
+.ant-list-item-meta-description .ant-space {
+  width: 100%;
+}
+
+.ant-list-item-meta-description span {
+  color: rgba(0, 0, 0, 0.65);
+}

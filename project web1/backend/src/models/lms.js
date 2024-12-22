@@ -3,7 +3,13 @@ const db = require('../configs/database');
 const lms = {
     getAllCourses: () => {
         return new Promise((resolve, reject) => {
-            db.query('SELECT * FROM courses', (error, results) => {
+            const query = `
+                SELECT c.*, u.full_name as teacher_name 
+                FROM courses c
+                LEFT JOIN users u ON c.teacher_id = u.id
+                ORDER BY c.created_at DESC
+            `;
+            db.query(query, [], (error, results) => {
                 if (error) {
                     reject(error);
                     return;
@@ -53,7 +59,7 @@ const lms = {
                 FROM videos v 
                 LEFT JOIN chapters c ON v.chapter_id = c.id 
                 WHERE v.course_id = ? 
-                ORDER BY c.order_index DESC`,
+                ORDER BY c.order_index ASC`,
                 [courseId],
                 (error, results) => {
                     if (error) {
@@ -104,8 +110,14 @@ const lms = {
     createCourse: (courseData) => {
         return new Promise((resolve, reject) => {
             db.query(
-                'INSERT INTO courses (title, description, thumbnail) VALUES (?, ?, ?)',
-                [courseData.title, courseData.description, courseData.thumbnail],
+                'INSERT INTO courses (title, description, thumbnail, teacher_id, is_public) VALUES (?, ?, ?, ?, ?)',
+                [
+                    courseData.title, 
+                    courseData.description, 
+                    courseData.thumbnail,
+                    courseData.teacher_id,
+                    courseData.is_public || false
+                ],
                 (error, results) => {
                     if (error) {
                         reject(error);
@@ -151,31 +163,38 @@ const lms = {
 
     getCourseById: (courseId) => {
         return new Promise((resolve, reject) => {
-            db.query(
-                'SELECT * FROM courses WHERE id = ?',
-                [courseId],
-                (error, results) => {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(results[0]);
+            const query = `
+                SELECT c.*, u.full_name as teacher_name 
+                FROM courses c
+                LEFT JOIN users u ON c.teacher_id = u.id
+                WHERE c.id = ?
+            `;
+            db.query(query, [courseId], (error, results) => {
+                if (error) {
+                    reject(error);
+                    return;
                 }
-            );
+                resolve(results[0]);
+            });
         });
     },
 
-    updateCourse: (courseId, courseData) => {
+    updateCourse: (courseId, { title, description, thumbnail, is_public }) => {
         return new Promise((resolve, reject) => {
+            const query = `
+                UPDATE courses 
+                SET title = ?, description = ?, thumbnail = ?, is_public = ?
+                WHERE id = ?
+            `;
             db.query(
-                'UPDATE courses SET title = ?, description = ?, thumbnail = ? WHERE id = ?',
-                [courseData.title, courseData.description, courseData.thumbnail, courseId],
+                query,
+                [title, description, thumbnail, is_public, courseId],
                 (error, results) => {
                     if (error) {
                         reject(error);
                         return;
                     }
-                    resolve({ id: courseId, ...courseData });
+                    resolve(results);
                 }
             );
         });
@@ -223,7 +242,7 @@ const lms = {
                         reject(error);
                         return;
                     }
-                    resolve(results);
+                    resolve({ id: chapterId, title });
                 }
             );
         });
@@ -263,22 +282,28 @@ const lms = {
         });
     },
 
-    createVideo: (chapterId, courseId, title, videoUrl) => {
+    createVideo: ({ title, video_url, chapter_id, course_id }) => {
         return new Promise((resolve, reject) => {
+            const query = `
+                INSERT INTO videos 
+                (title, video_url, chapter_id, course_id, created_at) 
+                VALUES (?, ?, ?, ?, NOW())
+            `;
+
             db.query(
-                'INSERT INTO videos (chapter_id, course_id, title, video_url) VALUES (?, ?, ?, ?)',
-                [chapterId, courseId, title, videoUrl],
+                query,
+                [title, video_url, chapter_id, course_id],
                 (error, results) => {
                     if (error) {
                         reject(error);
                         return;
                     }
-                    resolve({ 
-                        id: results.insertId, 
-                        chapter_id: chapterId,
-                        course_id: courseId,
+                    resolve({
+                        id: results.insertId,
                         title,
-                        video_url: videoUrl 
+                        video_url,
+                        chapter_id,
+                        course_id
                     });
                 }
             );
@@ -362,6 +387,203 @@ const lms = {
                     resolve(results);
                 }
             );
+        });
+    },
+
+    updateCourseVisibility: (courseId, isPublic) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'UPDATE courses SET is_public = ? WHERE id = ?',
+                [isPublic, courseId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
+
+    getCourseVisibility: (courseId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'SELECT is_public FROM courses WHERE id = ?',
+                [courseId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results[0]?.is_public || false);
+                }
+            );
+        });
+    },
+
+    getTeacherCourses: (teacherId) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                SELECT c.*, u.full_name as teacher_name 
+                FROM courses c
+                LEFT JOIN users u ON c.teacher_id = u.id
+                WHERE c.teacher_id = ?
+                ORDER BY c.created_at DESC
+            `;
+            db.query(query, [teacherId], (error, results) => {
+                if (error) {
+                    console.error('Database error:', error);
+                    reject(error);
+                    return;
+                }
+                resolve(results);
+            });
+        });
+    },
+
+    getDocumentsByCourseId: (courseId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'SELECT * FROM documents WHERE course_id = ?',
+                [courseId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
+
+    getQuizzesByCourseId: (courseId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'SELECT * FROM quizzes WHERE course_id = ?',
+                [courseId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
+                }
+            );
+        });
+    },
+
+    getChapterById: (chapterId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'SELECT * FROM chapters WHERE id = ?',
+                [chapterId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    getDocumentById: (documentId) => {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'SELECT * FROM documents WHERE id = ?',
+                [documentId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    createDocument: (documentData) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                INSERT INTO documents (
+                    title, 
+                    file_path, 
+                    file_type, 
+                    course_id, 
+                    chapter_id, 
+                    video_id, 
+                    teacher_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            `;
+            
+            const values = [
+                documentData.title,
+                documentData.file_path,
+                documentData.file_type,
+                documentData.course_id,
+                documentData.chapter_id,
+                documentData.video_id,
+                documentData.teacher_id
+            ];
+
+            db.query(query, values, (error, results) => {
+                if (error) {
+                    console.error('Database error:', error);
+                    reject(error);
+                    return;
+                }
+                resolve({
+                    id: results.insertId,
+                    ...documentData
+                });
+            });
+        });
+    },
+
+    getQuizzesByTeacher: (teacherId) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                SELECT DISTINCT
+                    q.*, 
+                    c.title as course_title,
+                    ch.title as chapter_title,
+                    v.title as video_title,
+                    (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count
+                FROM quizzes q
+                LEFT JOIN courses c ON q.course_id = c.id
+                LEFT JOIN chapters ch ON q.chapter_id = ch.id
+                LEFT JOIN videos v ON q.video_id = v.id
+                WHERE q.teacher_id = ?
+                ORDER BY q.created_at DESC
+            `;
+            
+            db.query(query, [teacherId], (error, results) => {
+                if (error) {
+                    console.error('Database error:', error);
+                    reject(error);
+                    return;
+                }
+                console.log('Query results for teacher quizzes:', results);
+                resolve(results);
+            });
+        });
+    },
+
+    deleteDocumentsByCourseId: (courseId) => {
+        return new Promise((resolve, reject) => {
+            const query = `DELETE FROM documents WHERE course_id = ? OR video_id IN (SELECT id FROM videos WHERE course_id = ?)`;
+            db.query(query, [courseId, courseId], (error, results) => {
+                if (error) {
+                    console.error('Database error:', error);
+                    reject(error);
+                    return;
+                }
+                resolve(results);
+            });
         });
     },
 }
