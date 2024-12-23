@@ -49,6 +49,31 @@ const getTeacherStats = (teacherId) => {
     });
 }
 
+const getEnrolledCourses = (userId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT 
+        c.*,
+        u.full_name as teacher_name,
+        ce.enrolled_at as enrollment_date
+      FROM courses c
+      JOIN course_enrollments ce ON c.id = ce.course_id
+      LEFT JOIN users u ON c.teacher_id = u.id
+      WHERE ce.user_id = ?
+      ORDER BY ce.enrolled_at DESC
+    `;
+    
+    db.query(query, [userId], (error, results) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(results);
+    });
+  });
+};
+
 module.exports = { checkEnrollment,
      enrollUserInCourse,
-     getTeacherStats }; 
+     getTeacherStats,
+     getEnrolledCourses }; 

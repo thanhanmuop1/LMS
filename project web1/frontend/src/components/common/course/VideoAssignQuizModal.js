@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, List, Button, Empty, Space, Tag } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 const VideoAssignQuizModal = ({
   visible,
@@ -7,8 +8,17 @@ const VideoAssignQuizModal = ({
   selectedVideo,
   availableQuizzes,
   onQuizAssign,
-  onQuizUnassign
+  onQuizUnassign,
+  role
 }) => {
+  const navigate = useNavigate();
+
+  const handleCreateQuiz = () => {
+    const path = role === 'admin' ? '/admin/quizzes/create' : '/teacher/quizzes/create';
+    navigate(path);
+    onCancel();
+  };
+
   return (
     <Modal
       title={`Quản lý Quiz cho Video: ${selectedVideo?.title || ''}`}
@@ -17,6 +27,12 @@ const VideoAssignQuizModal = ({
       footer={null}
       width={800}
     >
+      <div style={{ marginBottom: 16 }}>
+        <Button type="primary" onClick={handleCreateQuiz}>
+          Tạo Quiz mới
+        </Button>
+      </div>
+
       {availableQuizzes.length === 0 ? (
         <Empty 
           description="Không có quiz nào khả dụng"

@@ -329,22 +329,22 @@ const quiz = {
 
     deleteQuiz: (quizId) => {
         return new Promise((resolve, reject) => {
-            // Xóa theo thứ tự để tránh vi phạm ràng buộc khóa ngoại
-            db.query(
-                `DELETE qo, qq, q 
-                 FROM quizzes q
-                 LEFT JOIN quiz_questions qq ON q.id = qq.quiz_id
-                 LEFT JOIN quiz_options qo ON qq.id = qo.question_id
-                 WHERE q.id = ?`,
-                [quizId],
-                (error, results) => {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(results);
+            // Xóa tất cả bằng một query với LEFT JOIN
+            const query = `
+                DELETE q, qq, qo
+                FROM quizzes q
+                LEFT JOIN quiz_questions qq ON q.id = qq.quiz_id
+                LEFT JOIN quiz_options qo ON qq.id = qo.question_id
+                WHERE q.id = ?
+            `;
+
+            db.query(query, [quizId], (error, results) => {
+                if (error) {
+                    reject(error);
+                    return;
                 }
-            );
+                resolve(results);
+            });
         });
     },
 

@@ -1,0 +1,61 @@
+.enrolled-courses-container {
+  padding: 20px;
+}
+
+.section-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #1890ff;
+}
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.course-card {
+  height: 100%;
+}
+
+.course-image-container {
+  height: 200px;
+  overflow: hidden;
+}
+
+.course-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+.course-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #000;
+}
+
+.course-description {
+  color: #666;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.teacher-info {
+  margin-bottom: 16px;
+  color: #666;
+}
+
+.start-learning-button {
+  width: 100%;
+}
+
+.start-learning-button .anticon {
+  margin-right: 8px;
+} 

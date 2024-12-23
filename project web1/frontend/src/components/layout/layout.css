@@ -1,55 +1,9 @@
+/*  import home.js */
 /* Layout styles */
 .layout {
   display: flex;
   height: 100vh;
   background-color: #f9fafb;
-}
-
-/* Sidebar styles */
-.sidebar {
-  width: 220px;
-  background-color: #4f46e5;
-  min-height: 100vh;
-}
-
-.sidebar-logo {
-  padding: 16px;
-  display: flex;
-  align-items: center;
-}
-
-.sidebar-logo span {
-  color: white;
-  font-size: 20px;
-  font-weight: 600;
-  margin-left: 8px;
-}
-
-.sidebar-nav {
-  margin-top: 8px;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  color: white;
-  text-decoration: none;
-}
-
-.nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.nav-item svg {
-  width: 20px;
-  height: 20px;
-  min-width: 20px;
-}
-
-.nav-item span {
-  margin-left: 12px;
-  font-size: 14px;
 }
 
 /* Main content styles */
@@ -58,13 +12,14 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  margin-left: 300px;
 }
 
 /* Navbar styles */
 .navbar {
   top: 0;
   right: 0;
-  left: 220px;
+  left: 250px;
   height: 64px;
   background-color: white;
   display: flex;
@@ -74,7 +29,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
-
 
 .navbar-auth {
   display: flex;

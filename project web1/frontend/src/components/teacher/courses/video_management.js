@@ -7,6 +7,9 @@ import EditChapter from '../../admin/courses/manage_chapter/edit_chapter';
 import AddVideo from '../../admin/courses/manage_video/add_video';
 import EditVideo from '../../admin/courses/manage_video/edit_video';
 import DocumentManagement from './manage_document/document_management';
+import Navbar from '../../navbar/navbar';
+import Sidebar from '../../sidebar/sidebar';
+import '../teacher_page.css';
 
 const VideoManagement = () => {
   const { courseId } = useParams();
@@ -23,128 +26,138 @@ const VideoManagement = () => {
   const [selectedVideoForDocs, setSelectedVideoForDocs] = useState(null);
 
   return (
-    <VideoManagementProvider courseId={courseId} role="teacher">
-      {({
-        videos,
-        chapters,
-        loading,
-        courseInfo,
-        availableQuizzes,
-        handleDeleteVideo,
-        handleDeleteChapter,
-        handleAssignQuiz,
-        handleUnassignQuiz,
-        fetchAvailableQuizzes,
-        fetchCourseData
-      }) => (
-        <>
-          <VideoManagementBase
-            courseInfo={courseInfo}
-            chapters={chapters}
-            videos={videos}
-            loading={loading}
-            onAddChapter={() => setIsAddChapterVisible(true)}
-            onEditChapter={(chapter) => {
-              setSelectedChapter(chapter);
-              setIsEditChapterVisible(true);
-            }}
-            onDeleteChapter={handleDeleteChapter}
-            onAddVideo={(chapter) => {
-              setSelectedChapterForVideo(chapter);
-              setIsAddVideoVisible(true);
-            }}
-            onEditVideo={(video) => {
-              setSelectedVideo(video);
-              setIsEditVideoVisible(true);
-            }}
-            onDeleteVideo={handleDeleteVideo}
-            onManageDocuments={(video) => {
-              setSelectedVideoForDocs(video);
-              setIsDocumentModalVisible(true);
-            }}
-            onAssignQuiz={(video) => {
-              setSelectedVideoForQuiz(video);
-              setIsAssignQuizVisible(true);
-              fetchAvailableQuizzes(video.id);
-            }}
-            availableQuizzes={availableQuizzes}
-            selectedVideoForQuiz={selectedVideoForQuiz}
-            isAssignQuizVisible={isAssignQuizVisible}
-            onAssignQuizModalClose={() => {
-              setIsAssignQuizVisible(false);
-              setSelectedVideoForQuiz(null);
-            }}
-            onQuizAssign={(quizId) => handleAssignQuiz(selectedVideoForQuiz.id, quizId)}
-            onQuizUnassign={(quizId) => handleUnassignQuiz(selectedVideoForQuiz.id, quizId)}
-          />
+    <div className="layout">
+      <Sidebar />
+      <div className="main-content">
+        <Navbar />
+        <main className="content teacher-container">
+          <div className="course-management">
+            <VideoManagementProvider courseId={courseId} role="teacher">
+              {({
+                videos,
+                chapters,
+                loading,
+                courseInfo,
+                availableQuizzes,
+                handleDeleteVideo,
+                handleDeleteChapter,
+                handleAssignQuiz,
+                handleUnassignQuiz,
+                fetchAvailableQuizzes,
+                fetchCourseData
+              }) => (
+                <>
+                  <VideoManagementBase
+                    courseInfo={courseInfo}
+                    chapters={chapters}
+                    videos={videos}
+                    loading={loading}
+                    onAddChapter={() => setIsAddChapterVisible(true)}
+                    onEditChapter={(chapter) => {
+                      setSelectedChapter(chapter);
+                      setIsEditChapterVisible(true);
+                    }}
+                    onDeleteChapter={handleDeleteChapter}
+                    onAddVideo={(chapter) => {
+                      setSelectedChapterForVideo(chapter);
+                      setIsAddVideoVisible(true);
+                    }}
+                    onEditVideo={(video) => {
+                      setSelectedVideo(video);
+                      setIsEditVideoVisible(true);
+                    }}
+                    onDeleteVideo={handleDeleteVideo}
+                    onManageDocuments={(video) => {
+                      setSelectedVideoForDocs(video);
+                      setIsDocumentModalVisible(true);
+                    }}
+                    onAssignQuiz={(video) => {
+                      setSelectedVideoForQuiz(video);
+                      setIsAssignQuizVisible(true);
+                      fetchAvailableQuizzes(video.id);
+                    }}
+                    availableQuizzes={availableQuizzes}
+                    selectedVideoForQuiz={selectedVideoForQuiz}
+                    isAssignQuizVisible={isAssignQuizVisible}
+                    onAssignQuizModalClose={() => {
+                      setIsAssignQuizVisible(false);
+                      setSelectedVideoForQuiz(null);
+                    }}
+                    onQuizAssign={(quizId) => handleAssignQuiz(selectedVideoForQuiz.id, quizId)}
+                    onQuizUnassign={(quizId) => handleUnassignQuiz(selectedVideoForQuiz.id, quizId)}
+                  />
 
-          {/* Các modal components */}
-          <AddChapter
-            visible={isAddChapterVisible}
-            onCancel={() => setIsAddChapterVisible(false)}
-            onSuccess={() => {
-              setIsAddChapterVisible(false);
-              fetchCourseData();
-            }}
-            courseId={courseId}
-          />
+                  {/* Các modal components */}
+                  <AddChapter
+                    visible={isAddChapterVisible}
+                    onCancel={() => setIsAddChapterVisible(false)}
+                    onSuccess={() => {
+                      setIsAddChapterVisible(false);
+                      fetchCourseData();
+                    }}
+                    courseId={courseId}
+                  />
 
-          <EditChapter
-            visible={isEditChapterVisible}
-            onCancel={() => {
-              setIsEditChapterVisible(false);
-              setSelectedChapter(null);
-            }}
-            onSuccess={() => {
-              setIsEditChapterVisible(false);
-              setSelectedChapter(null);
-              fetchCourseData();
-            }}
-            chapterData={selectedChapter}
-          />
+                  <EditChapter
+                    visible={isEditChapterVisible}
+                    onCancel={() => {
+                      setIsEditChapterVisible(false);
+                      setSelectedChapter(null);
+                    }}
+                    onSuccess={() => {
+                      setIsEditChapterVisible(false);
+                      setSelectedChapter(null);
+                      fetchCourseData();
+                    }}
+                    chapterData={selectedChapter}
+                  />
 
-          <AddVideo
-            visible={isAddVideoVisible}
-            onCancel={() => {
-              setIsAddVideoVisible(false);
-              setSelectedChapterForVideo(null);
-            }}
-            onSuccess={() => {
-              setIsAddVideoVisible(false);
-              setSelectedChapterForVideo(null);
-              fetchCourseData();
-            }}
-            courseId={courseId}
-            chapterId={selectedChapterForVideo?.id}
-          />
+                  <AddVideo
+                    visible={isAddVideoVisible}
+                    onCancel={() => {
+                      setIsAddVideoVisible(false);
+                      setSelectedChapterForVideo(null);
+                    }}
+                    onSuccess={() => {
+                      setIsAddVideoVisible(false);
+                      setSelectedChapterForVideo(null);
+                      fetchCourseData();
+                    }}
+                    courseId={courseId}
+                    chapterId={selectedChapterForVideo?.id}
+                  />
 
-          <EditVideo
-            visible={isEditVideoVisible}
-            onCancel={() => {
-              setIsEditVideoVisible(false);
-              setSelectedVideo(null);
-            }}
-            onSuccess={() => {
-              setIsEditVideoVisible(false);
-              setSelectedVideo(null);
-              fetchCourseData();
-            }}
-            videoData={selectedVideo}
-          />
+                  <EditVideo
+                    visible={isEditVideoVisible}
+                    onCancel={() => {
+                      setIsEditVideoVisible(false);
+                      setSelectedVideo(null);
+                    }}
+                    onSuccess={() => {
+                      setIsEditVideoVisible(false);
+                      setSelectedVideo(null);
+                      fetchCourseData();
+                    }}
+                    videoData={selectedVideo}
+                  />
 
-          <DocumentManagement
-            visible={isDocumentModalVisible}
-            onCancel={() => {
-              setIsDocumentModalVisible(false);
-              setSelectedVideoForDocs(null);
-            }}
-            courseId={courseId}
-            chapterId={selectedVideoForDocs?.chapter_id}
-            videoId={selectedVideoForDocs?.id}
-          />
-        </>
-      )}
-    </VideoManagementProvider>
+                  <DocumentManagement
+                    visible={isDocumentModalVisible}
+                    onCancel={() => {
+                      setIsDocumentModalVisible(false);
+                      setSelectedVideoForDocs(null);
+                    }}
+                    courseId={courseId}
+                    chapterId={selectedVideoForDocs?.chapter_id}
+                    videoId={selectedVideoForDocs?.id}
+                  />
+                </>
+              )}
+            </VideoManagementProvider>
+          </div>
+        </main>
+      </div>
+    </div>
   );
 };
 

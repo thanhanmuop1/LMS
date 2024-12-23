@@ -4,6 +4,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import QuestionItem from './QuestionItem';
+import Navbar from '../../../navbar/navbar';
+import Sidebar from '../../../sidebar/sidebar';
+import '../../admin_page.css';
 
 const { Title } = Typography;
 
@@ -17,6 +20,7 @@ const QuestionManagement = () => {
   const [questions, setQuestions] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [questionType, setQuestionType] = useState('single');
+  const role = localStorage.getItem('role');
 
   useEffect(() => {
     fetchQuizData();
@@ -57,7 +61,7 @@ const QuestionManagement = () => {
     } catch (error) {
       console.error('Error fetching quiz:', error);
       message.error('Không thể tải thông tin quiz');
-      navigate('/admin/quizzes');
+      navigate('/admin/quiz');
     } finally {
       setLoading(false);
     }
@@ -140,77 +144,85 @@ const QuestionManagement = () => {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ maxWidth: 800, margin: '0 auto' }}>
-        <Title level={2} style={{ marginBottom: 24 }}>
-          Quản lý câu hỏi - {quiz?.title}
-        </Title>
+    <div className="layout">
+      <Sidebar />
+      <div className="main-content">
+        <Navbar />
+        <main className="content admin-container">
+          <div className="course-management">
+            <div className="page-header" style={{ padding: 0, margin: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Title level={2}>Quản lý câu hỏi - {quiz?.title}</Title>
+            </div>
 
-        <Form
-          form={form}
-          onFinish={handleUpdateQuestions}
-          layout="vertical"
-          disabled={loading}
-          initialValues={{ questions: questions }}
-        >
-          <Form.List name="questions">
-            {(fields, { add, remove }) => (
-              <>
-                {fields.map((field, index) => (
-                  <QuestionItem
-                    key={field.key}
-                    form={form}
-                    name={field.name}
-                    remove={remove}
-                    restField={field}
-                    index={index}
-                    handleDeleteQuestion={handleDeleteQuestion}
-                  />
-                ))}
-                <Button
-                  type="dashed"
-                  onClick={showQuestionTypeModal}
-                  block
-                  icon={<PlusOutlined />}
-                  style={{ marginBottom: 24 }}
-                >
-                  Thêm câu hỏi
-                </Button>
-              </>
-            )}
-          </Form.List>
+            <div className="form-container" style={{ maxWidth: 800, margin: '20px auto', background: 'white', padding: '24px', borderRadius: '8px' }}>
+              <Form
+                form={form}
+                onFinish={handleUpdateQuestions}
+                layout="vertical"
+                disabled={loading}
+                initialValues={{ questions: questions }}
+              >
+                <Form.List name="questions">
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map((field, index) => (
+                        <QuestionItem
+                          key={field.key}
+                          form={form}
+                          name={field.name}
+                          remove={remove}
+                          restField={field}
+                          index={index}
+                          handleDeleteQuestion={handleDeleteQuestion}
+                        />
+                      ))}
+                      <Button
+                        type="dashed"
+                        onClick={showQuestionTypeModal}
+                        block
+                        icon={<PlusOutlined />}
+                        style={{ marginBottom: 24 }}
+                      >
+                        Thêm câu hỏi
+                      </Button>
+                    </>
+                  )}
+                </Form.List>
 
-          <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit" loading={submitting}>
-                Lưu thay đổi
-              </Button>
-              <Button onClick={() => navigate('/admin/quizzes')}>
-                Quay lại
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-
-        <Modal
-          title="Chọn loại câu hỏi"
-          open={isModalVisible}
-          onOk={handleModalOk}
-          onCancel={handleModalCancel}
-          okText="Xác nhận"
-          cancelText="Hủy"
-        >
-          <Radio.Group
-            value={questionType}
-            onChange={(e) => setQuestionType(e.target.value)}
-          >
-            <Space direction="vertical">
-              <Radio value="single">Chỉ cho phép một đáp án đúng</Radio>
-              <Radio value="multiple">Cho phép nhiều đáp án đúng</Radio>
-            </Space>
-          </Radio.Group>
-        </Modal>
+                <Form.Item>
+                  <Space>
+                    <Button type="primary" htmlType="submit" loading={submitting}>
+                      Lưu thay đổi
+                    </Button>
+                    <Button onClick={() => navigate(role === 'admin' ? '/admin/quiz' : '/teacher/quiz')}>
+                      Quay lại
+                    </Button>
+                  </Space>
+                </Form.Item>
+              </Form>
+            </div>
+          </div>
+        </main>
       </div>
+
+      <Modal
+        title="Chọn loại câu hỏi"
+        open={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={handleModalCancel}
+        okText="Xác nhận"
+        cancelText="Hủy"
+      >
+        <Radio.Group
+          value={questionType}
+          onChange={(e) => setQuestionType(e.target.value)}
+        >
+          <Space direction="vertical">
+            <Radio value="single">Chỉ cho phép một đáp án đúng</Radio>
+            <Radio value="multiple">Cho phép nhiều đáp án đúng</Radio>
+          </Space>
+        </Radio.Group>
+      </Modal>
     </div>
   );
 };

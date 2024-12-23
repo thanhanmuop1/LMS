@@ -351,7 +351,7 @@ const teacherController = {
         return res.status(404).json({ message: 'Không tìm thấy quiz' });
       }
 
-      // Chỉ ki��m tra course_id nếu quiz đã được gán cho khóa học
+      // Chỉ kiểm tra course_id nếu quiz đã được gán cho khóa học
       if (quizInfo.course_id) {
         const course = await lms.getCourseById(quizInfo.course_id);
         if (!course || course.teacher_id !== teacherId) {
@@ -434,17 +434,26 @@ const teacherController = {
       const teacherId = req.user.id;
       const quizId = req.params.id;
       
-      // Kiểm tra quyền sở hữu quiz thông qua khóa học
-      const quiz = await lms.getQuizById(quizId);
-      const course = await lms.getCourseById(quiz.course_id);
-      if (!course || course.teacher_id !== teacherId) {
+      // Kiểm tra quyền sở hữu quiz
+      const quizInfo = await quiz.getQuizById(quizId);
+      if (!quizInfo) {
+        return res.status(404).json({ message: 'Không tìm thấy quiz' });
+      }
+
+      // Nếu quiz đã được gán cho khóa học, kiểm tra quyền sở hữu khóa học
+      if (quizInfo.course_id) {
+        const course = await lms.getCourseById(quizInfo.course_id);
+        if (!course || course.teacher_id !== teacherId) {
+          return res.status(403).json({ message: 'Không có quyền xóa quiz này' });
+        }
+      }
+
+      // Kiểm tra xem quiz có thuộc về teacher này không
+      if (quizInfo.teacher_id !== teacherId) {
         return res.status(403).json({ message: 'Không có quyền xóa quiz này' });
       }
 
-      // Xóa tất cả câu hỏi của quiz trước
-      await lms.deleteQuestionsByQuizId(quizId);
-      // Sau đó xóa quiz
-      await lms.deleteQuiz(quizId);
+      await quiz.deleteQuiz(quizId);
       res.json({ message: 'Xóa quiz thành công' });
     } catch (error) {
       console.error('Error deleting quiz:', error);

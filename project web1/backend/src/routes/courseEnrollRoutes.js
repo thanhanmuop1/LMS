@@ -1,8 +1,16 @@
 const express = require('express');
-const { enrollInCourse, checkEnrollmentStatus, getTeacherStats } = require('../controllers/courseEnrollController');
+const { 
+  enrollInCourse, 
+  checkEnrollmentStatus, 
+  getTeacherStats,
+  getEnrolledCourses 
+} = require('../controllers/courseEnrollController');
 const { authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Route để lấy danh sách khóa học đã đăng ký
+router.get('/enrolled-courses', authMiddleware, getEnrolledCourses);
 
 // Route to enroll in a course
 router.post('/enroll', authMiddleware, enrollInCourse);

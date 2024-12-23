@@ -18,6 +18,7 @@ import CreateQuizTeacher from './components/teacher/quizzes/create_quiz';
 import { useEffect } from 'react';
 import CheckEmail from './components/auth/CheckEmail';
 import EmailVerification from './components/auth/EmailVerification';
+import EnrolledCourses from './components/enrolled_courses/enrolled_courses';
 
 
 function App() {
@@ -104,6 +105,14 @@ function App() {
         />
         <Route path="/check-email" element={<CheckEmail />} />
         <Route path="/verify-email/:token" element={<EmailVerification />} />
+        <Route 
+          path="/enrolled-courses" 
+          element={
+            <PrivateRoute>
+              <EnrolledCourses />
+            </PrivateRoute>
+          } 
+        />
       </Routes>
     </Router>
   );
