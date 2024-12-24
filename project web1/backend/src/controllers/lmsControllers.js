@@ -306,14 +306,24 @@ const updateVideo = async (req, res) => {
 
 const deleteVideo = async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Không có quyền thực hiện' });
+        const videoId = req.params.videoId;
+        
+        // Kiểm tra video có tồn tại không
+        const video = await lms.getVideoById(videoId);
+        if (!video) {
+            return res.status(404).json({ message: 'Không tìm thấy video' });
         }
 
-        const videoId = req.params.videoId;
+        // Kiểm tra quyền - admin có thể xóa tất cả, giáo viên chỉ xóa được video trong khóa học của mình
+        const course = await lms.getCourseById(video.course_id);
+        if (req.user.role !== 'admin' && course.teacher_id !== req.user.id) {
+            return res.status(403).json({ message: 'Không có quyền xóa video này' });
+        }
 
-        // Xóa video
-        await lms.deleteVideo(videoId);
+        // Xóa theo thứ tự để tránh lỗi khóa ngoại
+        await lms.deleteVideoProgress(videoId);  // Xóa video progress trước
+        await lms.deleteDocumentsByVideoId(videoId);  // Xóa documents
+        await lms.deleteVideo(videoId);  // Cuối cùng xóa video
         
         res.status(200).json({ message: 'Xóa video thành công' });
     } catch (error) {

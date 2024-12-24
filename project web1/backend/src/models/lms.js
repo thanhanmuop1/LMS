@@ -649,6 +649,24 @@ const lms = {
         });
     },
 
+    deleteVideoProgress: (videoId) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                DELETE FROM video_completion 
+                WHERE video_id = ?
+            `;
+            
+            db.query(query, [videoId], (error, results) => {
+                if (error) {
+                    console.error('Error deleting video progress:', error);
+                    reject(error);
+                    return;
+                }
+                resolve(results);
+            });
+        });
+    },
+
 }
 
 

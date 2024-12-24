@@ -68,13 +68,10 @@ const CourseCard = ({
         title={course.title} 
         description={
           <div>
-            <p className="course-description">{course.description || 'No description available'}</p>
-            {course.teacher_name && (
-              <div className="course-info">
-                <span>Giảng viên: {course.teacher_name}</span>
-                {course.total_students && <span>{course.total_students} học viên</span>}
-              </div>
-            )}
+            <p className="course-description">Giảng viên: {course.teacher_name || 'Chưa có giảng viên'}</p>
+            <div className="course-info">
+              {course.total_students && <span>{course.total_students} học viên</span>}
+            </div>
           </div>
         }
       />
