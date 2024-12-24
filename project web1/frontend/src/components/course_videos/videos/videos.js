@@ -94,7 +94,7 @@ const Videos = ({ video, quizzes }) => {
   }, [video.video_url, isAPIReady]);
 
   return (
-    <div className="video-container">
+    <div className="content-section">
       <div className="video-section">
         <h2>{video.title}</h2>
         <div className="video-wrapper">
