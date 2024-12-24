@@ -75,7 +75,10 @@ const Sidebar = () => {
     <div className="sidebar">
       <div className="sidebar-logo">
         <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <span>Learning App</span>
+          <div className="logoandslogan">
+          <img src="/logo1.png" alt="App logo" />
+          {/* <span>Học không biết chán - Dạy người không biết mỏi</span> */}
+           </div>
         </Link>
       </div>
       <nav className="sidebar-nav">

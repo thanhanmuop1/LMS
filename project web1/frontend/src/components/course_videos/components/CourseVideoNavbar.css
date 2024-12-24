@@ -1,3 +1,4 @@
+
 .course-video-navbar {
   display: flex;
   justify-content: space-between;
@@ -53,6 +54,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  
   font-weight: 500;
 }
 

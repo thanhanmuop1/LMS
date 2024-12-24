@@ -1,5 +1,6 @@
 /*  import home.js */
 /* Layout styles */
+
 .layout {
   display: flex;
   height: 100vh;
@@ -12,7 +13,6 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  margin-left: 300px;
 }
 
 /* Main content area */

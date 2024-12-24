@@ -169,7 +169,7 @@ const CardComponent = () => {
           <Card
             hoverable
             onClick={() => navigate('/teacher/courses')}
-            className="course-card new-course-card"
+            className="course-card-container new-course-card"
             cover={
               <div className="course-image-container new-course-container">
                 <PlusOutlined className="new-course-icon" />

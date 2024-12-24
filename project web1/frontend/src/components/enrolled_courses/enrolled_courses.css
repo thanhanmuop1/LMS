@@ -1,3 +1,4 @@
+
 .enrolled-courses-container {
   padding: 20px;
 }
@@ -7,6 +8,7 @@
   margin-bottom: 20px;
   color: #1890ff;
 }
+
 
 .courses-grid {
   display: grid;
