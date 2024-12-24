@@ -225,7 +225,7 @@ const Quiz = ({ quiz: initialQuiz }) => {
 
   if (!isStarted && !showResult) {
     return (
-      <div className="quiz-container">
+      <div className="content-section">
         <Card className="quiz-intro-card">
           <Title level={2}>{quiz.title || 'Bài kiểm tra'}</Title>
           
@@ -272,7 +272,7 @@ const Quiz = ({ quiz: initialQuiz }) => {
 
   if (showResult && quizResult) {
     return (
-      <div className="quiz-container">
+      <div className="content-section">
         <Card className="quiz-card">
           <Result
             icon={quizResult.passed ? <CheckCircleOutlined style={{ color: '#52c41a' }} /> : <CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
@@ -296,7 +296,7 @@ const Quiz = ({ quiz: initialQuiz }) => {
   }
 
   return (
-    <div className="quiz-container">
+    <div className="content-section">
       <Card 
         title={quiz.title || 'Bài kiểm tra'} 
         className="quiz-card"

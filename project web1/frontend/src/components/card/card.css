@@ -34,10 +34,18 @@ img {
   flex-direction: column;
   cursor: pointer;
 }
-
+.course-card-container{
+  width: 30%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
 .course-card.not-enrolled {
   opacity: 0.8;
 }
+
 
 .course-card.not-enrolled:hover {
   opacity: 1;
