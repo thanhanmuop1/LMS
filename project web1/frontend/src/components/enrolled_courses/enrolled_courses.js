@@ -70,7 +70,14 @@ const EnrolledCourses = () => {
                 >
                   <div className="card-content">
                     <h3 className="course-title">{course.title}</h3>
-                    <p className="course-description">{course.description || 'Chưa có mô tả'}</p>
+                    <p className="course-description">
+                      Giảng viên: {course.teacher_name || 'Chưa có giảng viên'}
+                    </p>
+                    {course.total_students && (
+                      <p className="course-info">
+                        <span>{course.total_students} học viên</span>
+                      </p>
+                    )}
                     <Button 
                       type="primary" 
                       icon={<PlayCircleOutlined />}

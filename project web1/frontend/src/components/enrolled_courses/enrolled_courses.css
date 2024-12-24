@@ -1,4 +1,3 @@
-
 .enrolled-courses-container {
   padding: 20px;
 }
@@ -41,12 +40,14 @@
 }
 
 .course-description {
+  margin-bottom: 8px;
   color: #666;
-  margin-bottom: 12px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+}
+
+.course-info {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 16px;
 }
 
 .teacher-info {

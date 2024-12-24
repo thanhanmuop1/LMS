@@ -125,7 +125,14 @@ const CardComponent = () => {
         >
           <Meta 
             title={course.title} 
-            description={course.description || 'No description available'} 
+            description={
+              <div>
+                <p className="course-description">Giảng viên: {course.teacher_name || 'Chưa có giảng viên'}</p>
+                <div className="course-info">
+                  {course.total_students && <span>{course.total_students} học viên</span>}
+                </div>
+              </div>
+            }
           />
           
           {userRole === 'teacher' ? (
