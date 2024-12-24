@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './sidebar.css';
+import { TeamOutlined } from '@ant-design/icons';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -55,7 +56,12 @@ const Sidebar = () => {
         name: 'Quản lý bài tập',
         path: '/teacher/quiz',
         icon: 'M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z'
-    }
+    },
+    {
+      name: 'Quản lý học viên',
+      path: '/teacher/enrollments',
+      icon: ''
+    },
   ];
 
   // Kết hợp menu items dựa trên role

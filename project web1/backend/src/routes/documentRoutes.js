@@ -18,7 +18,6 @@ router.get('/documents/:id/download', documentController.downloadDocument);
 
 // Delete document (chỉ admin mới có quyền xóa)
 router.delete('/documents/:id', 
-    authMiddleware.authMiddleware, 
     documentController.deleteDocument
 );
 

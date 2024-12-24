@@ -78,7 +78,7 @@ const CardComponent = () => {
     }
 
     if (!enrollmentStatus[courseId]) {
-      message.warning('Vui lòng đăng ký khóa học để xem nội dung');
+      navigate(`/course-info/${courseId}`);
       return;
     }
     

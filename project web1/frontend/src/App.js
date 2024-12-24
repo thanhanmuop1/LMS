@@ -19,6 +19,9 @@ import { useEffect } from 'react';
 import CheckEmail from './components/auth/CheckEmail';
 import EmailVerification from './components/auth/EmailVerification';
 import EnrolledCourses from './components/enrolled_courses/enrolled_courses';
+import CourseInfo from './components/course_info/course_info';
+import TeacherEnrollmentDetails from './components/teacher/enrollment_details/TeacherEnrollmentDetails';
+import SearchResults from './components/search/SearchResults';
 
 
 function App() {
@@ -103,6 +106,14 @@ function App() {
             </PrivateRouteTeacher>
           }
         />
+        <Route 
+          path="/teacher/enrollments" 
+          element={
+            <PrivateRouteTeacher>
+              <TeacherEnrollmentDetails />
+            </PrivateRouteTeacher>
+          }
+        />
         <Route path="/check-email" element={<CheckEmail />} />
         <Route path="/verify-email/:token" element={<EmailVerification />} />
         <Route 
@@ -112,6 +123,18 @@ function App() {
               <EnrolledCourses />
             </PrivateRoute>
           } 
+        />
+        <Route 
+          path="/course-info/:courseId" 
+          element={
+            <PrivateRoute>
+              <CourseInfo />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/search" 
+          element={<SearchResults />} 
         />
       </Routes>
     </Router>

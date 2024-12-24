@@ -1,38 +1,28 @@
 .course-video-navbar {
-  height: 64px;
-  background: #fff;
-  padding: 0 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  top: 0;
-  z-index: 1000;
+  padding: 0 24px;
+  height: 64px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
 }
 
 .back-button {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #595959;
-}
-
-.back-button:hover {
-  color: #1890ff;
 }
 
 .course-title h2 {
   margin: 0;
   font-size: 18px;
-  font-weight: 600;
-  color: #262626;
+  color: #1a1a1a;
 }
 
 .navbar-right {
@@ -41,20 +31,49 @@
 }
 
 .user-menu {
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.user-menu:hover {
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .user-avatar {
   width: 32px;
   height: 32px;
+  border-radius: 50%;
   background-color: #1890ff;
   color: white;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 500;
+}
+
+.user-name {
+  color: #1a1a1a;
+  font-size: 14px;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Style cho dropdown menu */
+.ant-dropdown-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ant-dropdown-menu-item .anticon {
+  font-size: 16px;
 }
 
 @media (max-width: 768px) {

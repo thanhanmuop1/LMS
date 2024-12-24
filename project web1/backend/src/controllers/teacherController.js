@@ -487,6 +487,7 @@ const teacherController = {
     }
   },
 
+  // Chú ý sau này xoá
   deleteDocument: async (req, res) => {
     try {
       const teacherId = req.user.id;

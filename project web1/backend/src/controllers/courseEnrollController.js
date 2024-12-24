@@ -60,9 +60,46 @@ const getTeacherStats = async (req, res) => {
   }
 };
 
+const getCourseDetails = async (req, res) => {
+  try {
+    const courseId = req.params.courseId;
+    const courseDetails = await courseEnroll.getCourseDetails(courseId);
+    
+    if (!courseDetails) {
+      return res.status(404).json({ message: 'Không tìm thấy khóa học' });
+    }
+
+    res.json(courseDetails);
+  } catch (error) {
+    console.error('Error getting course details:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const getTeacherEnrollmentDetails = async (req, res) => {
+  try {
+    const teacherId = req.user.id;
+    
+    // Kiểm tra role là teacher
+    if (req.user.role !== 'teacher') {
+      return res.status(403).json({ 
+        message: 'Chỉ giáo viên mới có quyền truy cập thông tin này' 
+      });
+    }
+
+    const enrollmentDetails = await courseEnroll.getEnrollmentDetailsByTeacher(teacherId);
+    res.json(enrollmentDetails);
+  } catch (error) {
+    console.error('Error getting enrollment details:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = { 
   enrollInCourse, 
   checkEnrollmentStatus, 
   getTeacherStats,
-  getEnrolledCourses 
+  getEnrolledCourses,
+  getCourseDetails,
+  getTeacherEnrollmentDetails
 }; 

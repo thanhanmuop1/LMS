@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Dropdown } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, UserOutlined, BookOutlined, LogoutOutlined, CaretDownOutlined } from '@ant-design/icons';
 import './CourseVideoNavbar.css';
 
 const CourseVideoNavbar = ({ courseTitle }) => {
@@ -21,16 +21,19 @@ const CourseVideoNavbar = ({ courseTitle }) => {
     {
       key: 'profile',
       label: 'Hồ sơ',
+      icon: <UserOutlined />,
       onClick: () => navigate('/profile')
     },
     {
-      key: 'home',
-      label: 'Trang chủ',
-      onClick: () => navigate('/')
+      key: 'courses',
+      label: 'Khóa học của tôi',
+      icon: <BookOutlined />,
+      onClick: () => navigate('/enrolled-courses')
     },
     {
       key: 'logout',
       label: 'Đăng xuất',
+      icon: <LogoutOutlined />,
       onClick: () => {
         localStorage.removeItem('token');
         localStorage.removeItem('role');
@@ -64,8 +67,10 @@ const CourseVideoNavbar = ({ courseTitle }) => {
         >
           <div className="user-menu">
             <div className="user-avatar">
-              {userRole?.[0]?.toUpperCase() || 'U'}
+              {userFullName?.[0]?.toUpperCase() || userRole?.[0]?.toUpperCase() || 'U'}
             </div>
+            <span className="user-name">{userFullName}</span>
+            <CaretDownOutlined className="dropdown-icon" />
           </div>
         </Dropdown>
       </div>

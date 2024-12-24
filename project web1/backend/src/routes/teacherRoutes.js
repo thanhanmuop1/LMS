@@ -74,7 +74,7 @@ router.delete('/questions/:id', teacherController.deleteQuestion);
 // Document routes
 router.get('/courses/:courseId/documents', teacherController.getCourseDocuments);
 router.post('/courses/:courseId/documents', upload.single('file'), teacherController.addDocument);
-router.delete('/documents/:id', teacherController.deleteDocument);
+router.delete('/documents/:id', teacherController.deleteDocument); // Chú ý sau này xoá
 router.get('/documents/:id/download', teacherController.downloadDocument);
 
 module.exports = router; 

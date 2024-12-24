@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { message } from 'antd';
+import { message, Modal } from 'antd';
 import axios from 'axios';
 import DocumentManagementBase from '../../../common/course/DocumentManagementBase';
 
@@ -35,11 +35,23 @@ const DocumentManagement = ({ visible, onCancel, courseId, chapterId, videoId })
   const handleDelete = async (documentId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/teacher/documents/${documentId}`, {
+      await axios.delete(`http://localhost:5000/documents/${documentId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      message.success('Xóa tài liệu thành công');
-      fetchDocuments();
+      Modal.confirm({
+        title: 'Xác nhận xóa',
+        content: 'Bạn có chắc chắn muốn xóa tài liệu này không? Hành động này không thể hoàn tác.',
+        okText: 'Xóa',
+        okType: 'danger',
+        cancelText: 'Hủy',
+        async onOk() {
+          await axios.delete(`http://localhost:5000/documents/${documentId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          message.success('Xóa tài liệu thành công');
+          fetchDocuments();
+        }
+      });
     } catch (error) {
       console.error('Error deleting document:', error);
       message.error('Có lỗi xảy ra khi xóa tài liệu');

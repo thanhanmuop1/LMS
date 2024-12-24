@@ -267,8 +267,6 @@ const lms = {
         });
     },
 
-
-
     deleteVideosByChapterId: (chapterId) => {
         return new Promise((resolve, reject) => {
             db.query(
