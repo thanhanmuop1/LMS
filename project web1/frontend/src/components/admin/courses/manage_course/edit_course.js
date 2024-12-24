@@ -112,9 +112,16 @@ const EditCourse = ({ visible, onCancel, onSuccess, courseData }) => {
         <Form.Item
           name="description"
           label="Mô tả"
-          rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+          rules={[
+            { required: true, message: 'Vui lòng nhập mô tả khóa học!' },
+            { max: 100, message: 'Mô tả không được vượt quá 100 ký tự!' }
+          ]}
         >
-          <Input.TextArea rows={4} />
+          <Input.TextArea 
+            maxLength={100}
+            showCount
+            placeholder="Nhập mô tả khóa học"
+          />
         </Form.Item>
 
         <Form.Item
