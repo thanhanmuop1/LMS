@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Space, Image, Tag } from 'antd';
+import { Button, Space, Image, Tag, Tooltip } from 'antd';
 import { EditOutlined, DeleteOutlined, TeamOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
@@ -68,12 +68,21 @@ const CourseTableColumns = ({ onEdit, onDelete, role, onViewStudents}) => {
       dataIndex: 'description',
       key: 'description',
       render: (text, record) => (
-        <div
-          onClick={() => handleRowClick(record)}
-          style={{ cursor: 'pointer' }}
-        >
-          {text}
-        </div>
+        <Tooltip title={text} mouseEnterDelay={0.5}>
+          <span
+            onClick={() => handleRowClick(record)}
+            style={{ 
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: 200,
+              display: 'inline-block'  // Add this
+            }}
+          >
+            {text}
+          </span>
+        </Tooltip>
       ),
     },
     {

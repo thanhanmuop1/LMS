@@ -52,7 +52,7 @@ img {
 }
 
 .course-card.not-enrolled .course-image-container::after {
-  content: 'Chưa đăng ký';
+  content: 'Xem thêm';
   position: absolute;
   top: 50%;
   left: 50%;
