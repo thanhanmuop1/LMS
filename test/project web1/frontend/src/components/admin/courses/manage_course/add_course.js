@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, message, Upload } from 'antd';
+import { Modal, Form, Input, Upload, message, Switch } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -11,15 +11,16 @@ const AddCourse = ({ visible, onCancel, onSuccess }) => {
   const handleSubmit = async (values) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/courses', {
+      await axios.post(`${process.env.REACT_APP_API_URL}/courses`, {
         ...values,
-        thumbnail: imageUrl || values.thumbnail // Sử dụng URL đã upload hoặc URL nhập tay
+        thumbnail: imageUrl,
+        is_public: values.is_public
       }, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+      console.log(values);
       message.success('Thêm khóa học thành công');
       form.resetFields();
       setImageUrl('');
@@ -50,7 +51,7 @@ const AddCourse = ({ visible, onCancel, onSuccess }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://localhost:5000/courses/upload-thumbnail',
+        `${process.env.REACT_APP_API_URL}/courses/upload-thumbnail`,
         formData,
         {
           headers: {
@@ -100,14 +101,22 @@ const AddCourse = ({ visible, onCancel, onSuccess }) => {
         <Form.Item
           name="description"
           label="Mô tả"
-          rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+          rules={[
+            { required: true, message: 'Vui lòng nhập mô tả khóa học!' },
+            { max: 100, message: 'Mô tả không được vượt quá 100 ký tự!' }
+          ]}
         >
-          <Input.TextArea rows={4} />
+          <Input.TextArea 
+            maxLength={100}
+            showCount
+            placeholder="Nhập mô tả khóa học"
+          />
         </Form.Item>
 
         <Form.Item
           label="Ảnh thumbnail"
           extra="Hỗ trợ JPG, PNG, GIF (< 5MB)"
+          rules={[{ required: true, message: 'Vui lòng tải lên ảnh thumbnail!' }]}
         >
           <Upload
             name="thumbnail"
@@ -127,11 +136,15 @@ const AddCourse = ({ visible, onCancel, onSuccess }) => {
         </Form.Item>
 
         <Form.Item
-          name="thumbnail"
-          label="hoặc nhập URL ảnh"
-          rules={[{ type: 'url', message: 'Vui lòng nhập URL hợp lệ!' }]}
+          name="is_public"
+          label="Trạng thái công khai"
+          valuePropName="checked"
+          initialValue={false}
         >
-          <Input placeholder="https://example.com/image.jpg" />
+          <Switch 
+            checkedChildren="Công khai" 
+            unCheckedChildren="Riêng tư" 
+          />
         </Form.Item>
       </Form>
     </Modal>

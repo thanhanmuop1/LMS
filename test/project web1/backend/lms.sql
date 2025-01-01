@@ -20,7 +20,9 @@ CREATE TABLE courses (
   title varchar(200) NOT NULL,
   description text DEFAULT NULL,
   thumbnail varchar(255) DEFAULT NULL,
-  created_at timestamp NOT NULL DEFAULT current_timestamp()
+  created_at timestamp NOT NULL DEFAULT current_timestamp(),
+  is_public TINYINT(1) DEFAULT 0,
+  teacher_id int(11)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE users (
@@ -30,7 +32,9 @@ CREATE TABLE users (
   password varchar(255) NOT NULL,
   full_name varchar(100) DEFAULT NULL,
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
-  role enum('admin','student','teacher') DEFAULT 'student'
+  role enum('admin','student','teacher') DEFAULT 'student',
+  email_verified BOOLEAN DEFAULT FALSE,
+  verification_token VARCHAR(255)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE videos (
@@ -38,7 +42,8 @@ CREATE TABLE videos (
   title varchar(200) NOT NULL,
   course_id int(11) NOT NULL,
   video_url varchar(255) NOT NULL,
-  chapter_id int(11) DEFAULT NULL
+  chapter_id int(11) DEFAULT NULL,
+  created_at timestamp NOT NULL DEFAULT current_timestamp(),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE video_completion (
@@ -52,6 +57,18 @@ CREATE TABLE video_completion (
   CONSTRAINT video_completion_ibfk_2 FOREIGN KEY (video_id) REFERENCES videos (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Tạo bảng course_enrollments để thống kê
+CREATE TABLE course_enrollments (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  user_id int(11) NOT NULL,
+  course_id int(11) NOT NULL,
+  enrolled_at timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id),
+  UNIQUE KEY unique_enrollment (user_id, course_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 CREATE TABLE quizzes (
   id int(11) NOT NULL AUTO_INCREMENT,
   title varchar(255) NOT NULL,
@@ -62,13 +79,15 @@ CREATE TABLE quizzes (
   passing_score int(11) DEFAULT 60,
   quiz_type ENUM('video', 'chapter') NOT NULL DEFAULT 'video',
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
+  teacher_id int(11) NOT NULL,
   PRIMARY KEY (id),
   KEY course_id (course_id),
   KEY chapter_id (chapter_id),
   KEY video_id (video_id),
   CONSTRAINT quizzes_ibfk_1 FOREIGN KEY (course_id) REFERENCES courses (id),
   CONSTRAINT quizzes_ibfk_2 FOREIGN KEY (chapter_id) REFERENCES chapters (id),
-  CONSTRAINT quizzes_ibfk_3 FOREIGN KEY (video_id) REFERENCES videos (id)
+  CONSTRAINT quizzes_ibfk_3 FOREIGN KEY (video_id) REFERENCES videos (id),
+  CONSTRAINT quizzes_ibfk_4 FOREIGN KEY (teacher_id) REFERENCES users (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE quiz_questions (
@@ -152,6 +171,7 @@ CREATE TABLE documents (
   chapter_id int(11) DEFAULT NULL,
   video_id int(11) DEFAULT NULL,
   uploaded_at timestamp NOT NULL DEFAULT current_timestamp(),
+  teacher_id int(11) NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (course_id) REFERENCES courses(id),
   FOREIGN KEY (chapter_id) REFERENCES chapters(id),
@@ -195,6 +215,13 @@ ALTER TABLE chapters
 ALTER TABLE videos
   ADD CONSTRAINT videos_ibfk_1 FOREIGN KEY (course_id) REFERENCES courses (id),
   ADD CONSTRAINT videos_ibfk_2 FOREIGN KEY (chapter_id) REFERENCES chapters (id);
+
+ALTER TABLE courses
+  ADD FOREIGN KEY (teacher_id) REFERENCES users(id);
+
+ALTER TABLE users 
+  ADD COLUMN email_verified BOOLEAN DEFAULT FALSE,
+  ADD COLUMN verification_token VARCHAR(255);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

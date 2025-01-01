@@ -11,7 +11,7 @@ const Menu = ({ videos, chapters, quizzes, onVideoSelect, onQuizSelect }) => {
     const fetchWatchedVideos = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/videos/completed', {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/videos/completed`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setWatchedVideos(response.data.map(v => v.video_id));
@@ -28,11 +28,6 @@ const Menu = ({ videos, chapters, quizzes, onVideoSelect, onQuizSelect }) => {
   const getMenuItems = () => {
     return chapters.map(chapter => {
       const chapterVideos = videos.filter(video => video.chapter_id === chapter.id);
-      const chapterQuiz = quizzes.find(quiz => 
-        quiz.chapter_id === chapter.id && 
-        quiz.quiz_type === 'chapter'
-      );
-
       const children = [];
 
       chapterVideos.forEach(video => {
@@ -46,31 +41,17 @@ const Menu = ({ videos, chapters, quizzes, onVideoSelect, onQuizSelect }) => {
           className: isWatched ? 'video-watched' : ''
         });
 
-        const videoQuiz = quizzes.find(quiz => 
-          quiz.video_id === video.id && 
-          quiz.quiz_type === 'video'
-        );
-
+        const videoQuiz = quizzes.find(quiz => quiz.video_id === video.id);
         if (videoQuiz) {
           children.push({
-            key: `quiz-video-${videoQuiz.id}`,
+            key: `quiz-${videoQuiz.id}`,
             icon: <FileTextOutlined style={{ color: '#52c41a' }} />,
             label: `Quiz: ${videoQuiz.title || 'Bài kiểm tra'}`,
-            className: 'quiz-menu-item video-quiz',
+            className: 'quiz-menu-item',
             onClick: () => onQuizSelect(videoQuiz)
           });
         }
       });
-
-      if (chapterQuiz) {
-        children.push({
-          key: `quiz-chapter-${chapterQuiz.id}`,
-          icon: <FileTextOutlined style={{ color: '#1890ff' }} />,
-          label: `Quiz chương: ${chapterQuiz.title || 'Bài kiểm tra chương'}`,
-          className: 'quiz-menu-item chapter-quiz',
-          onClick: () => onQuizSelect(chapterQuiz)
-        });
-      }
 
       return {
         key: `chapter-${chapter.id}`,

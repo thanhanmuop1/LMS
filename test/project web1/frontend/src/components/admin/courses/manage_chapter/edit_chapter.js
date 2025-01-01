@@ -16,16 +16,20 @@ const EditChapter = ({ visible, onCancel, onSuccess, chapterData }) => {
   const handleSubmit = async (values) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/chapters/${chapterData.id}`, values, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/chapters/${chapterData.id}`, values, { 
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         }
       });
       
       message.success('Cập nhật chương thành công');
       onSuccess();
     } catch (error) {
-      message.error(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật chương');
+      console.error('Error updating chapter:', error);
+      const errorMessage = error.response?.data?.message || 
+                          error.message ||
+                          'Có lỗi xảy ra khi cập nhật chương';
+      message.error(errorMessage);
     }
   };
 

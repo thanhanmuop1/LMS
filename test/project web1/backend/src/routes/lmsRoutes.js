@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const lmsControllers = require('../controllers/lmsControllers');
-const authMiddleware = require('../middleware/auth');
+const { authMiddleware, authorizeAdmin } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 
@@ -54,5 +54,14 @@ const thumbnailUpload = multer({
 
 // Thêm route upload thumbnail
 router.post('/courses/upload-thumbnail', authMiddleware, thumbnailUpload.single('thumbnail'), lmsControllers.uploadThumbnail);
+
+// Cập nhật trạng thái public của khóa học (cho cả admin và teacher)
+router.put('/courses/:courseId/visibility', authMiddleware, lmsControllers.updateCourseVisibility);
+
+// Thêm route để lấy danh sách học sinh theo khóa học
+router.get('/courses/:courseId/students',authMiddleware,lmsControllers.getStudentsByCourse);
+
+// Thêm route để xóa học sinh khỏi khóa học
+router.delete('/courses/:courseId/students/:userId', authMiddleware, lmsControllers.removeStudentFromCourse);
 
 module.exports = router;

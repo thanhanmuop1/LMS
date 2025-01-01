@@ -32,7 +32,7 @@ const Quiz = ({ quiz: initialQuiz }) => {
       }
 
       const response = await axios.post(
-        `http://localhost:5000/quizzes/${quiz.id}/submit`,
+        `${process.env.REACT_APP_API_URL}/quizzes/${quiz.id}/submit`,
         { answers: selectedAnswers },
         {
           headers: { 
@@ -78,7 +78,7 @@ const Quiz = ({ quiz: initialQuiz }) => {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get(
-          `http://localhost:5000/quizzes/${initialQuiz.id}`,
+          `${process.env.REACT_APP_API_URL}/quizzes/${initialQuiz.id}`,
           {
             headers: { 'Authorization': `Bearer ${token}` }
           }
@@ -86,7 +86,7 @@ const Quiz = ({ quiz: initialQuiz }) => {
         setQuiz(response.data);
 
         const resultResponse = await axios.get(
-          `http://localhost:5000/quizzes/${initialQuiz.id}/result`,
+          `${process.env.REACT_APP_API_URL}/quizzes/${initialQuiz.id}/result`,
           {
             headers: { 'Authorization': `Bearer ${token}` }
           }
@@ -196,7 +196,7 @@ const Quiz = ({ quiz: initialQuiz }) => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `http://localhost:5000/quizzes/${quiz.id}/reset`,
+        `${process.env.REACT_APP_API_URL}/quizzes/${quiz.id}/reset`,
         {},
         {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -225,7 +225,7 @@ const Quiz = ({ quiz: initialQuiz }) => {
 
   if (!isStarted && !showResult) {
     return (
-      <div className="quiz-container">
+      <div className="content-section">
         <Card className="quiz-intro-card">
           <Title level={2}>{quiz.title || 'Bài kiểm tra'}</Title>
           
@@ -272,7 +272,7 @@ const Quiz = ({ quiz: initialQuiz }) => {
 
   if (showResult && quizResult) {
     return (
-      <div className="quiz-container">
+      <div className="content-section">
         <Card className="quiz-card">
           <Result
             icon={quizResult.passed ? <CheckCircleOutlined style={{ color: '#52c41a' }} /> : <CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
@@ -296,7 +296,7 @@ const Quiz = ({ quiz: initialQuiz }) => {
   }
 
   return (
-    <div className="quiz-container">
+    <div className="content-section">
       <Card 
         title={quiz.title || 'Bài kiểm tra'} 
         className="quiz-card"

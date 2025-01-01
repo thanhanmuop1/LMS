@@ -1,4 +1,5 @@
 const db = require('../configs/database');
+const fs = require('fs');
 
 const document = {
     createDocument: (documentData) => {
@@ -78,6 +79,40 @@ const document = {
                 }
                 resolve(results);
             });
+        });
+    },
+
+    deleteDocumentsByVideoId: (videoId) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Lấy danh sách documents của video để xóa file vật lý
+                const getDocsQuery = 'SELECT file_path FROM documents WHERE video_id = ?';
+                db.query(getDocsQuery, [videoId], (error, documents) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+
+                    // Xóa các file vật lý
+                    documents.forEach(doc => {
+                        if (fs.existsSync(doc.file_path)) {
+                            fs.unlinkSync(doc.file_path);
+                        }
+                    });
+
+                    // Xóa records trong database
+                    const deleteQuery = 'DELETE FROM documents WHERE video_id = ?';
+                    db.query(deleteQuery, [videoId], (error, result) => {
+                        if (error) {
+                            reject(error);
+                            return;
+                        }
+                        resolve(result);
+                    });
+                });
+            } catch (error) {
+                reject(error);
+            }
         });
     }
 };

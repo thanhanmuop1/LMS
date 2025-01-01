@@ -8,7 +8,7 @@
 }
 
 .video-section {
-  width: 100%;
+  padding: 20px 0 0 20px;
 }
 
 .video-wrapper {
@@ -28,13 +28,14 @@
   height: 100%;
 }
 
-.video-container h2 {
+h2 {
   margin: 0;
   margin-bottom: 10px;
   color: #333;
+  font-size: 25px;
 }
 
-.video-container p {
+p {
   margin: 10px 0;
   color: #666;
 }

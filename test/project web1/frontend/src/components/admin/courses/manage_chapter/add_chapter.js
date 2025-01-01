@@ -1,19 +1,26 @@
 import React from 'react';
 import { Modal, Form, Input, message } from 'antd';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const AddChapter = ({ visible, onCancel, onSuccess, courseId }) => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
   const handleSubmit = async (values) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:5000/courses/${courseId}/chapters`, values, {
+      if (!token) {
+        message.error('Vui lòng đăng nhập lại');
+        navigate('/login');
+        return;
+      }
+
+      await axios.post(`${process.env.REACT_APP_API_URL}/courses/${courseId}/chapters`, values, { 
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         }
       });
-      
       message.success('Thêm chương thành công');
       form.resetFields();
       onSuccess();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, message, Upload } from 'antd';
+import { Modal, Form, Input, Upload, message, Switch } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -13,7 +13,7 @@ const EditCourse = ({ visible, onCancel, onSuccess, courseData }) => {
       form.setFieldsValue({
         title: courseData.title,
         description: courseData.description,
-        thumbnail: courseData.thumbnail,
+        is_public: courseData.is_public
       });
       setImageUrl(courseData.thumbnail || '');
     }
@@ -22,14 +22,10 @@ const EditCourse = ({ visible, onCancel, onSuccess, courseData }) => {
   const handleSubmit = async (values) => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        message.error('Vui lòng đăng nhập lại');
-        return;
-      }
-
-      await axios.put(`http://localhost:5000/courses/${courseData.id}`, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/courses/${courseData.id}`, {
         ...values,
-        thumbnail: imageUrl || values.thumbnail
+        thumbnail: imageUrl,
+        is_public: values.is_public
       }, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -39,11 +35,7 @@ const EditCourse = ({ visible, onCancel, onSuccess, courseData }) => {
       message.success('Cập nhật khóa học thành công');
       onSuccess();
     } catch (error) {
-      if (error.response?.status === 401) {
-        message.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại');
-      } else {
-        message.error(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật khóa học');
-      }
+      message.error(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật khóa học');
     }
   };
 
@@ -62,20 +54,13 @@ const EditCourse = ({ visible, onCancel, onSuccess, courseData }) => {
   const handleUpload = async (options) => {
     const { onSuccess, onError, file } = options;
     const token = localStorage.getItem('token');
-    
-    if (!token) {
-      message.error('Vui lòng đăng nhập lại');
-      onError({ err: new Error('No authentication token') });
-      return;
-    }
-
     const formData = new FormData();
     formData.append('thumbnail', file);
 
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://localhost:5000/courses/upload-thumbnail',
+        `${process.env.REACT_APP_API_URL}/courses/upload-thumbnail`,
         formData,
         {
           headers: {
@@ -88,12 +73,8 @@ const EditCourse = ({ visible, onCancel, onSuccess, courseData }) => {
       onSuccess('Ok');
       message.success('Tải ảnh lên thành công!');
     } catch (err) {
-      if (err.response?.status === 401) {
-        message.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại');
-      } else {
-        message.error('Tải ảnh lên thất bại.');
-      }
       onError({ err });
+      message.error('Tải ảnh lên thất bại.');
     } finally {
       setLoading(false);
     }
@@ -112,9 +93,11 @@ const EditCourse = ({ visible, onCancel, onSuccess, courseData }) => {
       open={visible}
       onCancel={onCancel}
       onOk={() => form.submit()}
+      okText="Cập nhật"
+      cancelText="Hủy"
     >
-      <Form
-        form={form}
+      <Form 
+        form={form} 
         layout="vertical"
         onFinish={handleSubmit}
       >
@@ -129,14 +112,22 @@ const EditCourse = ({ visible, onCancel, onSuccess, courseData }) => {
         <Form.Item
           name="description"
           label="Mô tả"
-          rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+          rules={[
+            { required: true, message: 'Vui lòng nhập mô tả khóa học!' },
+            { max: 100, message: 'Mô tả không được vượt quá 100 ký tự!' }
+          ]}
         >
-          <Input.TextArea rows={4} />
+          <Input.TextArea 
+            maxLength={100}
+            showCount
+            placeholder="Nhập mô tả khóa học"
+          />
         </Form.Item>
 
         <Form.Item
           label="Ảnh thumbnail"
           extra="Hỗ trợ JPG, PNG, GIF (< 5MB)"
+          rules={[{ required: true, message: 'Vui lòng tải lên ảnh thumbnail!' }]}
         >
           <Upload
             name="thumbnail"
@@ -156,17 +147,13 @@ const EditCourse = ({ visible, onCancel, onSuccess, courseData }) => {
         </Form.Item>
 
         <Form.Item
-          name="thumbnail"
-          label="hoặc nhập URL ảnh"
-          rules={[{ type: 'url', message: 'Vui lòng nhập URL hợp lệ!' }]}
+          name="is_public"
+          label="Trạng thái công khai"
+          valuePropName="checked"
         >
-          <Input 
-            placeholder="https://example.com/image.jpg"
-            onChange={(e) => {
-              if (e.target.value) {
-                setImageUrl(e.target.value);
-              }
-            }}
+          <Switch 
+            checkedChildren="Công khai" 
+            unCheckedChildren="Riêng tư"
           />
         </Form.Item>
       </Form>

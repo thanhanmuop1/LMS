@@ -1,64 +1,71 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, message } from 'antd';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import './Auth.css';
+import { Link, useNavigate } from 'react-router-dom';
+import AuthLayout from '../layout/AuthLayout';
+import authService from '../../services/authService';
 
 const Login = () => {
-    const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-    const onFinish = async (values) => {
-        try {
-            setLoading(true);
-            const response = await axios.post('http://localhost:5000/auth/login', values);
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            
-            window.dispatchEvent(new Event('loginSuccess'));
-            
-            message.success('Đăng nhập thành công');
-            navigate('/');
-        } catch (error) {
-            message.error(error.response?.data?.message || 'Đăng nhập thất bại');
-        } finally {
-            setLoading(false);
-        }
-    };
+  const onFinish = async (values) => {
+    try {
+      setLoading(true);
+      const response = await authService.login(values);
+      const { user } = response;
+      
+      window.dispatchEvent(new Event('loginSuccess'));
+      message.success('Đăng nhập thành công');
+      navigate('/');
+    } catch (error) {
+      console.error('Login error:', error);
+      if (error.response?.data?.needsVerification) {
+        message.warning('Vui lòng xác thực email trước khi đăng nhập');
+      } else {
+        message.error(error.response?.data?.message || 'Đăng nhập thất bại');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div className="auth-container">
-            <Form
-                name="login"
-                onFinish={onFinish}
-                layout="vertical"
-                className="auth-form"
-            >
-                <h2>Đăng nhập</h2>
-                <Form.Item
-                    label="Email"
-                    name="email"
-                    rules={[{ required: true, message: 'Vui lòng nhập email!' }]}
-                >
-                    <Input />
-                </Form.Item>
+  return (
+    <AuthLayout>
+      <Form
+        name="login"
+        onFinish={onFinish}
+        layout="vertical"
+        className="auth-form"
+      >
+        <h2>Đăng nhập</h2>
+        <Form.Item
+          label="Email hoặc tên đăng nhập"
+          name="username"
+          rules={[{ required: true, message: 'Vui lòng nhập email hoặc username!' }]}
+        >
+          <Input />
+        </Form.Item>
 
-                <Form.Item
-                    label="Mật khẩu"
-                    name="password"
-                    rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
-                >
-                    <Input.Password />
-                </Form.Item>
+        <Form.Item
+          label="Mật khẩu"
+          name="password"
+          rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+        >
+          <Input.Password />
+        </Form.Item>
 
-                <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading} block>
-                        Đăng nhập
-                    </Button>
-                </Form.Item>
-            </Form>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" loading={loading} block>
+            Đăng nhập
+          </Button>
+        </Form.Item>
+
+        <div className="auth-links">
+          <Link to="/register">Chưa có tài khoản? Đăng ký ngay</Link>
         </div>
-    );
+      </Form>
+    </AuthLayout>
+  );
 };
 
 export default Login; 
