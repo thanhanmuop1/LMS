@@ -22,7 +22,7 @@ const EditCourse = ({ visible, onCancel, onSuccess, courseData }) => {
   const handleSubmit = async (values) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/courses/${courseData.id}`, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/courses/${courseData.id}`, {
         ...values,
         thumbnail: imageUrl,
         is_public: values.is_public
@@ -60,7 +60,7 @@ const EditCourse = ({ visible, onCancel, onSuccess, courseData }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://localhost:5000/courses/upload-thumbnail',
+        `${process.env.REACT_APP_API_URL}/courses/upload-thumbnail`,
         formData,
         {
           headers: {
@@ -138,7 +138,7 @@ const EditCourse = ({ visible, onCancel, onSuccess, courseData }) => {
           >
             {imageUrl ? (
               <img 
-                src={imageUrl} 
+                src={`${process.env.REACT_APP_API_URL}${imageUrl}`} 
                 alt="thumbnail" 
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
               />

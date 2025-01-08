@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Form, Input, InputNumber, Button, message, Select } from 'antd';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import axios from 'axios';
-import Navbar from '../../navbar/navbar';
-import Sidebar from '../../sidebar/sidebar';
+import Navbar from '../../common/navbar/navbar';
+import Sidebar from '../../common/sidebar/sidebar';
 import '../../teacher/teacher_page.css';
 
 const CreateQuizBase = ({ role, apiEndpoint }) => {
@@ -35,7 +35,7 @@ const CreateQuizBase = ({ role, apiEndpoint }) => {
       const fetchCourses = async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await axios.get('http://localhost:5000/teacher/courses', {
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/teacher/courses`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           setCourses(response.data);
@@ -90,7 +90,7 @@ const CreateQuizBase = ({ role, apiEndpoint }) => {
           points: values.points_per_question
         }));
         
-        await axios.put(`${apiEndpoint}/${id}`, {
+        await axios.put(`${process.env.REACT_APP_API_URL}/quizzes/${id}`, {
           ...quizData,
           questions
         }, {
@@ -98,7 +98,7 @@ const CreateQuizBase = ({ role, apiEndpoint }) => {
         });
         message.success('Cập nhật quiz thành công');
       } else {
-        await axios.post(apiEndpoint, {
+        await axios.post(`${process.env.REACT_APP_API_URL}/quizzes`, {
           ...quizData,
           questions: []
         }, {

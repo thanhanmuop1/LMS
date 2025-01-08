@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = `${process.env.REACT_APP_API_URL}`;
 
 const authService = {
     login: async (credentials) => {
@@ -15,14 +15,14 @@ const authService = {
             return response.data;
         } catch (error) {
             if (error.response?.data?.needsVerification) {
-                throw { 
-                    response: { 
-                        data: { 
-                            needsVerification: true,
-                            message: 'Vui lòng xác thực email trước khi đăng nhập' 
-                        } 
-                    } 
+                const verificationError = new Error('Vui lòng xác thực email trước khi đăng nhập');
+                verificationError.response = {
+                    data: {
+                        needsVerification: true,
+                        message: 'Vui lòng xác thực email trước khi đăng nhập'
+                    }
                 };
+                throw verificationError;
             }
             throw error;
         }

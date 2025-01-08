@@ -20,7 +20,7 @@ const CourseTableColumns = ({ onEdit, onDelete, role, onViewStudents}) => {
       render: (thumbnailUrl) => (
         thumbnailUrl ? (
           <Image 
-            src={thumbnailUrl}
+            src={`${process.env.REACT_APP_API_URL}${thumbnailUrl}`}
             alt="Course thumbnail"
             style={{ 
               width: 100, 

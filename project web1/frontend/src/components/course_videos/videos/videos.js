@@ -76,7 +76,7 @@ const Videos = ({ video, quizzes }) => {
             try {
               const token = localStorage.getItem('token');
               await axios.post(
-                `http://localhost:5000/videos/${video.id}/mark-watched`,
+                `${process.env.REACT_APP_API_URL}/videos/${video.id}/mark-watched`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
               );

@@ -1,4 +1,0 @@
-# Thêm vào file .gitignore
-uploads/*
-!uploads/.gitkeep
-node_modules/

@@ -15,7 +15,7 @@ const TeacherDashboard = ({ courses = [] }) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/courseEnroll/stats', {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/courseEnroll/stats`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setStats(response.data);

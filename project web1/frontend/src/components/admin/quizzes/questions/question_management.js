@@ -4,8 +4,8 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import QuestionItem from './QuestionItem';
-import Navbar from '../../../navbar/navbar';
-import Sidebar from '../../../sidebar/sidebar';
+import Navbar from '../../../common/navbar/navbar';
+import Sidebar from '../../../common/sidebar/sidebar';
 import '../../admin_page.css';
 
 const { Title } = Typography;
@@ -31,7 +31,7 @@ const QuestionManagement = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `http://localhost:5000/quizzes/${quizId}`,
+        `${process.env.REACT_APP_API_URL}/quizzes/${quizId}`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }
@@ -67,23 +67,6 @@ const QuestionManagement = () => {
     }
   };
 
-  const handleDeleteQuestion = async (questionId) => {
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(
-        `http://localhost:5000/questions/${questionId}`,
-        {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }
-      );
-      message.success('Xóa câu hỏi thành công');
-      fetchQuizData();
-    } catch (error) {
-      console.error('Error deleting question:', error);
-      message.error('Có lỗi xảy ra khi xóa câu hỏi');
-    }
-  };
-
   const handleUpdateQuestions = async (values) => {
     try {
       setSubmitting(true);
@@ -103,7 +86,7 @@ const QuestionManagement = () => {
       }));
       
       await axios.put(
-        `http://localhost:5000/quizzes/${quizId}/questions`,
+        `${process.env.REACT_APP_API_URL}/quizzes/${quizId}/questions`,
         { questions: formattedQuestions },
         {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -173,7 +156,6 @@ const QuestionManagement = () => {
                           remove={remove}
                           restField={field}
                           index={index}
-                          handleDeleteQuestion={handleDeleteQuestion}
                         />
                       ))}
                       <Button

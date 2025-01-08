@@ -117,34 +117,22 @@ const verifyEmail = async (req, res) => {
         const user = await auth.getUserByVerificationToken(token);
         
         if (!user) {
-            // Kiểm tra xem có user nào đã xác thực với token này không
-            const verifiedUser = await auth.getUserByVerifiedToken(token);
-            if (verifiedUser && verifiedUser.email_verified) {
-                return res.status(400).json({ 
-                    message: 'Email đã được xác thực trước đó',
-                    alreadyVerified: true
-                });
-            }
-            return res.status(400).json({ 
-                message: 'Token không hợp lệ hoặc đã hết hạn'
-            });
+            return res.redirect(`${process.env.FRONTEND_URL}/login?verifyStatus=invalid`);
         }
 
         // Kiểm tra xem email đã được xác thực chưa
         if (user.email_verified) {
-            return res.status(400).json({ 
-                message: 'Email đã được xác thực trước đó',
-                alreadyVerified: true
-            });
+            return res.redirect(`${process.env.FRONTEND_URL}/login?verifyStatus=already-verified`);
         }
 
         // Cập nhật trạng thái xác thực email
         await auth.verifyEmail(user.id);
         
-        res.json({ message: 'Email đã được xác thực thành công' });
+        // Redirect về trang login với thông báo thành công
+        res.redirect(`${process.env.FRONTEND_URL}/login?verifyStatus=success`);
     } catch (error) {
         console.error('Error verifying email:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.redirect(`${process.env.FRONTEND_URL}/login?verifyStatus=error`);
     }
 };
 
@@ -182,7 +170,6 @@ const login = async (req, res) => {
                 role: user.role // Đảm bảo có trường role
             },
             process.env.JWT_SECRET,
-            { expiresIn: '24h' }
         );
 
         res.json({

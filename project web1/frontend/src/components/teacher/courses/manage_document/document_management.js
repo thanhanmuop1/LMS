@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { message, Modal } from 'antd';
 import axios from 'axios';
-import DocumentManagementBase from '../../../common/course/DocumentManagementBase';
+import DocumentManagementBase from '../../../common/document/DocumentManagementBase';
 
 const DocumentManagement = ({ visible, onCancel, courseId, chapterId, videoId }) => {
   const [documents, setDocuments] = useState([]);
@@ -13,7 +13,7 @@ const DocumentManagement = ({ visible, onCancel, courseId, chapterId, videoId })
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/teacher/courses/${courseId}/documents`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/teacher/courses/${courseId}/documents`, {
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -34,10 +34,6 @@ const DocumentManagement = ({ visible, onCancel, courseId, chapterId, videoId })
 
   const handleDelete = async (documentId) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/documents/${documentId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
       Modal.confirm({
         title: 'Xác nhận xóa',
         content: 'Bạn có chắc chắn muốn xóa tài liệu này không? Hành động này không thể hoàn tác.',
@@ -45,9 +41,7 @@ const DocumentManagement = ({ visible, onCancel, courseId, chapterId, videoId })
         okType: 'danger',
         cancelText: 'Hủy',
         async onOk() {
-          await axios.delete(`http://localhost:5000/documents/${documentId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+          await axios.delete(`${process.env.REACT_APP_API_URL}/documents/${documentId}`);
           message.success('Xóa tài liệu thành công');
           fetchDocuments();
         }
@@ -61,7 +55,7 @@ const DocumentManagement = ({ visible, onCancel, courseId, chapterId, videoId })
   const handleDownload = async (document) => {
     try {
       const token = localStorage.getItem('token');
-      window.open(`http://localhost:5000/teacher/documents/${document.id}/download`, '_blank');
+      window.open(`${process.env.REACT_APP_API_URL}/documents/${document.id}/download`, '_blank');
     } catch (error) {
       console.error('Error downloading document:', error);
       message.error('Có lỗi xảy ra khi tải tài liệu');
@@ -70,7 +64,7 @@ const DocumentManagement = ({ visible, onCancel, courseId, chapterId, videoId })
 
   const uploadProps = {
     name: 'file',
-    action: `http://localhost:5000/teacher/courses/${courseId}/documents`,
+    action: `${process.env.REACT_APP_API_URL}/documents`,
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
     },

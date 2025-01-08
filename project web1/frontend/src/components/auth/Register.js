@@ -13,7 +13,7 @@ const Register = () => {
     const onFinish = async (values) => {
         try {
             setLoading(true);
-            const response = await axios.post('http://localhost:5000/register', values);
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/register`, values);
             message.success(response.data.message || 'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.');
             navigate('/check-email', { 
                 state: { 

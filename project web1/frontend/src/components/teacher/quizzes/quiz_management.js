@@ -13,7 +13,7 @@ const QuizManagement = () => {
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/teacher/courses', {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/teacher/courses`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setCourses(response.data);
@@ -27,7 +27,7 @@ const QuizManagement = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/teacher/quizzes', {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/teacher/quizzes`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setQuizzes(response.data);
@@ -47,7 +47,7 @@ const QuizManagement = () => {
   const handleDelete = async (quizId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/teacher/quizzes/${quizId}`, {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/quizzes/${quizId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       message.success('Xóa quiz thành công');

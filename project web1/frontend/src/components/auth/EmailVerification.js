@@ -1,98 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Result, Spin, Button } from 'antd';
+import { Result, Spin, Button, Layout } from 'antd';
 import axios from 'axios';
+
+const { Content } = Layout;
 
 const EmailVerification = () => {
     const { token } = useParams();
     const navigate = useNavigate();
-    const [verifying, setVerifying] = useState(false);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
+    const [verifying, setVerifying] = useState(true);
+    const [status, setStatus] = useState(null);
+    const [message, setMessage] = useState('');
 
-    const handleVerification = async () => {
-        if (verifying || success) return;
-
-        try {
-            setVerifying(true);
-            const response = await axios.get(`http://localhost:5000/verify-email/${token}`);
-            setSuccess(true);
-            setVerifying(false);
-
-            setTimeout(() => {
-                navigate('/login');
-            }, 3000);
-        } catch (error) {
-            if (error.response?.status === 400) {
-                setError(error.response.data.message);
-                if (error.response.data.alreadyVerified) {
-                    setTimeout(() => {
-                        navigate('/login');
-                    }, 3000);
+    useEffect(() => {
+        const verifyEmail = async () => {
+            try {
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/verify-email/${token}`);
+                setStatus(response.data.status);
+                setMessage(response.data.message);
+                
+                if (response.data.status === 'success' || response.data.status === 'already-verified') {
+                    setTimeout(() => navigate('/login'), 3000);
                 }
-            } else {
-                setError('Có lỗi xảy ra khi xác thực email');
+            } catch (error) {
+                setStatus('error');
+                setMessage(error.response?.data?.message || 'Có lỗi xảy ra khi xác thực email');
+            } finally {
+                setVerifying(false);
             }
-            setVerifying(false);
+        };
+
+        verifyEmail();
+    }, [token, navigate]);
+
+    const getResultProps = () => {
+        switch (status) {
+            case 'success':
+                return {
+                    status: 'success',
+                    title: 'Xác thực email thành công!',
+                    subTitle: 'Bạn sẽ được chuyển đến trang đăng nhập trong vài giây...'
+                };
+            case 'already-verified':
+                return {
+                    status: 'info',
+                    title: 'Email đã được xác thực',
+                    subTitle: 'Bạn sẽ được chuyển đến trang đăng nhập trong vài giây...'
+                };
+            case 'invalid':
+            case 'error':
+                return {
+                    status: 'error',
+                    title: 'Xác thực thất bại',
+                    subTitle: message,
+                    extra: [
+                        <Button type="primary" key="console" onClick={() => navigate('/register')}>
+                            Đăng ký lại
+                        </Button>
+                    ]
+                };
+            default:
+                return null;
         }
     };
 
-    if (verifying) {
-        return (
-            <div className="verification-container">
-                <Spin size="large" tip="Đang xác thực email..." />
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="verification-container">
-                <Result
-                    status={error.includes('đã được xác thực') ? 'info' : 'error'}
-                    title={error.includes('đã được xác thực') ? 'Thông báo' : 'Xác thực email thất bại'}
-                    subTitle={
-                        <>
-                            <p>{error}</p>
-                            {error.includes('đã được xác thực') && 
-                                <p>Bạn sẽ được chuyển đến trang đăng nhập trong vài giây...</p>
-                            }
-                        </>
-                    }
-                />
-            </div>
-        );
-    }
-
-    if (success) {
-        return (
-            <div className="verification-container">
-                <Result
-                    status="success"
-                    title="Xác thực email thành công!"
-                    subTitle="Bạn sẽ được chuyển đến trang đăng nhập trong vài giây..."
-                />
-            </div>
-        );
-    }
-
     return (
-        <div className="verification-container">
-            <Result
-                title="Xác thực email của bạn"
-                subTitle="Nhấn nút bên dưới để xác thực email của bạn"
-                extra={[
-                    <Button 
-                        type="primary" 
-                        key="verify" 
-                        onClick={handleVerification}
-                        loading={verifying}
-                    >
-                        Xác thực email
-                    </Button>
-                ]}
-            />
-        </div>
+        <Layout style={{ minHeight: '100vh' }}>
+            <Content style={{ padding: '50px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {verifying ? (
+                    <Result
+                        icon={<Spin size="large" />}
+                        title="Đang xác thực email..."
+                        subTitle="Vui lòng đợi trong giây lát"
+                    />
+                ) : (
+                    <Result {...getResultProps()} />
+                )}
+            </Content>
+        </Layout>
     );
 };
 

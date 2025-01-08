@@ -11,7 +11,7 @@ const Menu = ({ videos, chapters, quizzes, onVideoSelect, onQuizSelect }) => {
     const fetchWatchedVideos = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/videos/completed', {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/videos/completed`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setWatchedVideos(response.data.map(v => v.video_id));

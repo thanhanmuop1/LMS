@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import Videos from './videos/videos';
 import Menu from './menu/menu';
@@ -11,6 +11,9 @@ import { LoadingOutlined } from '@ant-design/icons';
 
 const CourseVideosPage = () => {
   const { courseId } = useParams();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const videoId = searchParams.get('videoId');
   const [chapters, setChapters] = useState([]);
   const [videos, setVideos] = useState([]);
   const [quizzes, setQuizzes] = useState([]);
@@ -23,7 +26,7 @@ const CourseVideosPage = () => {
 
   const fetchDocuments = useCallback(async (videoId, chapterId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/documents`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/documents`, {
         params: {
           courseId,
           chapterId,
@@ -40,20 +43,34 @@ const CourseVideosPage = () => {
   const fetchData = useCallback(async () => {
     try {
       const [chaptersResponse, videosResponse, quizzesResponse] = await Promise.all([
-        axios.get(`http://localhost:5000/courses/${courseId}/chapters`),
-        axios.get(`http://localhost:5000/courses/${courseId}/videos`),
-        axios.get(`http://localhost:5000/courses/${courseId}/quizzes`)
+        axios.get(`${process.env.REACT_APP_API_URL}/courses/${courseId}/chapters`),
+        axios.get(`${process.env.REACT_APP_API_URL}/courses/${courseId}/videos`),
+        axios.get(`${process.env.REACT_APP_API_URL}/courses/${courseId}/quizzes`)
       ]);
 
       setChapters(chaptersResponse.data);
       setVideos(videosResponse.data);
       setQuizzes(quizzesResponse.data);
       
-      if (videosResponse.data.length > 0) {
+      if (videoId && videosResponse.data.length > 0) {
+        const videoToSelect = videosResponse.data.find(v => v.id === parseInt(videoId));
+        if (videoToSelect) {
+          setSelectedVideo(videoToSelect);
+          fetchDocuments(videoToSelect.id, videoToSelect.chapter_id);
+          setSelectedQuiz(null);
+        } else {
+          const firstVideo = videosResponse.data[0];
+          setSelectedVideo(firstVideo);
+          fetchDocuments(firstVideo.id, firstVideo.chapter_id);
+          setSelectedQuiz(null);
+          navigate(`/course/${courseId}?videoId=${firstVideo.id}`, { replace: true });
+        }
+      } else if (videosResponse.data.length > 0) {
         const firstVideo = videosResponse.data[0];
         setSelectedVideo(firstVideo);
         fetchDocuments(firstVideo.id, firstVideo.chapter_id);
         setSelectedQuiz(null);
+        navigate(`/course/${courseId}?videoId=${firstVideo.id}`, { replace: true });
       }
       setLoading(false);
     } catch (err) {
@@ -61,11 +78,11 @@ const CourseVideosPage = () => {
       setError('Có lỗi xảy ra khi tải dữ liệu');
       setLoading(false);
     }
-  }, [courseId, fetchDocuments]);
+  }, [courseId, fetchDocuments, navigate, videoId]);
 
   const fetchCourseInfo = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/courses/${courseId}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/courses/${courseId}`);
       setCourseInfo(response.data);
     } catch (error) {
       console.error('Error fetching course info:', error);
@@ -82,6 +99,7 @@ const CourseVideosPage = () => {
     setSelectedVideo(video);
     setSelectedQuiz(null);
     fetchDocuments(video.id, video.chapter_id);
+    navigate(`/course/${courseId}?videoId=${video.id}`, { replace: true });
   };
 
   const handleQuizSelect = (quiz) => {
@@ -96,7 +114,7 @@ const CourseVideosPage = () => {
 
   const handleDownload = async (document) => {
     try {
-      window.open(`http://localhost:5000/documents/${document.id}/download`, '_blank');
+      window.open(`${process.env.REACT_APP_API_URL}/documents/${document.id}/download`, '_blank');
     } catch (error) {
       message.error('Có lỗi xảy ra khi tải tài liệu');
     }

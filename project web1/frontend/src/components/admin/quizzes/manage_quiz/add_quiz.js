@@ -8,7 +8,7 @@ const AddQuiz = ({ visible, onCancel, onSuccess }) => {
       onCancel={onCancel}
       onSuccess={onSuccess}
       role="admin"
-      apiEndpoint="http://localhost:5000/quizzes"
+      apiEndpoint={`${process.env.REACT_APP_API_URL}/quizzes`}
     />
   );
 };

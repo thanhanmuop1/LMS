@@ -4,12 +4,12 @@ import VideoManagementBase from '../../common/course/VideoManagementBase';
 import VideoManagementProvider from '../../common/course/VideoManagementProvider';
 import AddChapter from '../../admin/courses/manage_chapter/add_chapter';
 import EditChapter from '../../admin/courses/manage_chapter/edit_chapter';
-import AddVideo from '../../admin/courses/manage_video/add_video';
-import EditVideo from '../../admin/courses/manage_video/edit_video';
+import EditVideoModal from '../../common/video/EditVideoModal';
 import DocumentManagement from './manage_document/document_management';
-import Navbar from '../../navbar/navbar';
-import Sidebar from '../../sidebar/sidebar';
+import Navbar from '../../common/navbar/navbar';
+import Sidebar from '../../common/sidebar/sidebar';
 import '../teacher_page.css';
+import AddVideoModal from '../../common/video/AddVideoModal';
 
 const VideoManagement = () => {
   const { courseId } = useParams();
@@ -112,7 +112,7 @@ const VideoManagement = () => {
                     chapterData={selectedChapter}
                   />
 
-                  <AddVideo
+                  <AddVideoModal
                     visible={isAddVideoVisible}
                     onCancel={() => {
                       setIsAddVideoVisible(false);
@@ -125,9 +125,10 @@ const VideoManagement = () => {
                     }}
                     courseId={courseId}
                     chapterId={selectedChapterForVideo?.id}
+                    role="teacher"
                   />
 
-                  <EditVideo
+                  <EditVideoModal
                     visible={isEditVideoVisible}
                     onCancel={() => {
                       setIsEditVideoVisible(false);
@@ -139,6 +140,7 @@ const VideoManagement = () => {
                       fetchCourseData();
                     }}
                     videoData={selectedVideo}
+                    role="teacher"
                   />
 
                   <DocumentManagement

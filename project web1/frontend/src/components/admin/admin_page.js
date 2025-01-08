@@ -5,8 +5,8 @@ import { message } from 'antd';
 import Dashboard from './dashboard/dashboard';
 import CourseManagement from './courses/course_management';
 import QuizManagement from './quizzes/quiz_management';
-import Navbar from '../navbar/navbar';
-import Sidebar from '../sidebar/sidebar';
+import Navbar from '../common/navbar/navbar';
+import Sidebar from '../common/sidebar/sidebar';
 import './admin_page.css';
 
 const AdminPage = () => {
@@ -28,8 +28,8 @@ const AdminPage = () => {
       };
 
       const [coursesResponse, usersResponse] = await Promise.all([
-        axios.get('http://localhost:5000/courses', { headers }),
-        axios.get('http://localhost:5000/users', { headers })
+        axios.get(`${process.env.REACT_APP_API_URL}/courses`, { headers }),
+        axios.get(`${process.env.REACT_APP_API_URL}/users`, { headers })
       ]);
 
       setCourses(coursesResponse.data);

@@ -25,7 +25,7 @@ const CourseManagement = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/teacher/courses', {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/teacher/courses`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCourses(response.data);
@@ -46,7 +46,7 @@ const CourseManagement = () => {
       onOk: async () => {
         try {
           const token = localStorage.getItem('token');
-          await axios.delete(`http://localhost:5000/teacher/courses/${courseId}`, {
+          await axios.delete(`${process.env.REACT_APP_API_URL}/courses/${courseId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           message.success('Xóa khóa học thành công');

@@ -9,7 +9,7 @@ const EditQuiz = ({ visible, onCancel, onSuccess, quizData }) => {
       onSuccess={onSuccess}
       quizData={quizData}
       role="teacher"
-      apiEndpoint="http://localhost:5000/teacher/quizzes"
+      apiEndpoint={`${process.env.REACT_APP_API_URL}/teacher/quizzes`}
     />
   );
 };

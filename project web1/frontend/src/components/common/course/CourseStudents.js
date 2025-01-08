@@ -11,7 +11,7 @@ const CourseStudents = ({ visible, onCancel, courseId, onStudentRemoved }) => {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `http://localhost:5000/courses/${courseId}/students/${userId}`,
+        `${process.env.REACT_APP_API_URL}/courses/${courseId}/students/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }

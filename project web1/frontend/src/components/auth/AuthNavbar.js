@@ -6,7 +6,7 @@ const AuthNavbar = () => {
     <nav className="auth-navbar">
       <div className="auth-navbar-container">
         <Link to="/" className="auth-navbar-logo">
-          Learning App
+          MYCLASS
         </Link>
       </div>
     </nav>
