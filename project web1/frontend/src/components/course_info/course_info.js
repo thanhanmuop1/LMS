@@ -103,7 +103,7 @@ const CourseInfo = () => {
             <div className="course-preview-right">
               <Card className="course-card">
                 <img 
-                  src={courseDetails?.thumbnail} 
+                  src={`${process.env.REACT_APP_API_URL}${courseDetails?.thumbnail}`} 
                   alt={courseDetails?.title}
                   className="course-thumbnail" 
                 />
