@@ -2,14 +2,13 @@ import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import CourseVideosPage from './components/course_videos/course_videos_page';
 import Home from './components/home/home';
-import ResponsiveAppBar from './components/navbar/navbar';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import PrivateRoute from './components/auth/PrivateRoute';
 import PrivateRouteTeacher from './components/auth/PrivateRouteTeacher';
 import AdminPage from './components/admin/admin_page';
 import AdminRoute from './components/auth/AdminRoute';
-import VideoManagement from './components/admin/courses/video_management';
+import VideoManagement from './components/admin/courses/manage_video/video_management';
 import CreateQuiz from './components/admin/quizzes/create_quiz';
 import QuestionManagement from './components/admin/quizzes/questions/question_management';
 import TeacherPage from './components/teacher/teacher_page';
@@ -17,7 +16,19 @@ import TeacherVideoManagement from './components/teacher/courses/video_managemen
 import TeacherDocumentManagement from './components/teacher/courses/manage_document/document_management';
 import CreateQuizTeacher from './components/teacher/quizzes/create_quiz';
 import { useEffect } from 'react';
-
+import CheckEmail from './components/auth/CheckEmail';
+import EmailVerification from './components/auth/EmailVerification';
+import EnrolledCourses from './components/user/enrolled_courses/enrolled_courses';
+import CourseInfo from './components/course_info/course_info';
+import TeacherEnrollmentDetails from './components/teacher/enrollment_details/TeacherEnrollmentDetails';
+import SearchResults from './components/common/search/SearchResults';
+import Profile from './components/profile/profile';
+import ClassManagement from './components/teacher/classes/ClassManagement';
+import ClassCourseManagement from './components/teacher/classes/classCourseManagement';
+import EnrolledClasses from './components/user/classes/EnrolledClasses';
+import ClassCourse from './components/user/classes/classCourse';
+import JoinClassPage from './components/user/classes/JoinClassPage';
+import LandingPage from './components/landing/LandingPage';
 
 function App() {
   useEffect(() => {
@@ -32,8 +43,8 @@ function App() {
 
   return (
     <Router>
-      <ResponsiveAppBar />
       <Routes>
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/" element={<Home />} />
         <Route 
           path="/course/:courseId" 
@@ -43,14 +54,11 @@ function App() {
             </PrivateRoute>
           } 
         />
-        <Route 
-          path="/admin" 
-          element={
-            <AdminRoute>
-              <AdminPage />
-            </AdminRoute>
-          } 
-        />
+        <Route path="/admin/*" element={
+          <AdminRoute>
+            <AdminPage />
+          </AdminRoute>
+        } />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin/courses/:courseId/videos" element={<VideoManagement />} />
@@ -59,14 +67,11 @@ function App() {
         <Route path="/admin/quizzes/:quizId/questions" element={<QuestionManagement />} />
         
         {/* Teacher Routes */}
-        <Route 
-          path="/teacher" 
-          element={
-            <PrivateRouteTeacher>
-              <TeacherPage />
-            </PrivateRouteTeacher>
-          } 
-        />
+        <Route path="/teacher/*" element={
+          <PrivateRouteTeacher>
+            <TeacherPage />
+          </PrivateRouteTeacher>
+        } />
         <Route 
           path="/teacher/courses/:courseId/videos" 
           element={
@@ -108,6 +113,77 @@ function App() {
             </PrivateRouteTeacher>
           }
         />
+        <Route 
+          path="/teacher/enrollments" 
+          element={
+            <PrivateRouteTeacher>
+              <TeacherEnrollmentDetails />
+            </PrivateRouteTeacher>
+          }
+        />
+        <Route 
+          path="/teacher/classes" 
+          element={
+            <PrivateRouteTeacher>
+              <ClassManagement />
+            </PrivateRouteTeacher>
+          }
+        />
+        <Route 
+          path="/teacher/classes/:classId/courses" 
+          element={
+            <PrivateRouteTeacher>
+              <ClassCourseManagement />
+            </PrivateRouteTeacher>
+          } 
+        />
+        <Route path="/check-email" element={<CheckEmail />} />
+        <Route path="/verify-email/:token" element={<EmailVerification />} />
+        <Route 
+          path="/enrolled-courses" 
+          element={
+            <PrivateRoute>
+              <EnrolledCourses />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/course-info/:courseId" 
+          element={
+            <PrivateRoute>
+              <CourseInfo />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/search" 
+          element={<SearchResults />} 
+        />
+        <Route 
+          path="/profile" 
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/enrolled-classes" 
+          element={
+            <PrivateRoute>
+              <EnrolledClasses />
+            </PrivateRoute>
+          } 
+        />
+        <Route
+          path="/student/classes/:classId/courses" 
+          element={
+            <PrivateRoute>
+              <ClassCourse />
+            </PrivateRoute>
+          } 
+        />
+        <Route path="/join-class" element={<JoinClassPage />} />
       </Routes>
     </Router>
   );

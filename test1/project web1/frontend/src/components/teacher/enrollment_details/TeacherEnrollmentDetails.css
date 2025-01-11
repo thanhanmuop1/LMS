@@ -1,0 +1,68 @@
+.enrollment-details-container {
+  background: #f8f9fb;
+  min-height: calc(100vh - 64px);
+}
+
+.stats-section {
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.stats-section .ant-statistic {
+  padding: 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.stats-section .ant-statistic-title {
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.stats-section .ant-statistic-content {
+  color: #1890ff;
+}
+
+.table-section {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.table-header {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-input {
+  width: 300px;
+}
+
+.ant-progress-text {
+  font-weight: 500;
+}
+
+.ant-table-row:hover {
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .enrollment-details-container {
+    padding: 16px;
+  }
+  
+  .stats-section .ant-row {
+    flex-direction: column;
+  }
+  
+  .stats-section .ant-col {
+    margin-bottom: 16px;
+  }
+  
+  .search-input {
+    width: 100%;
+  }
+} 

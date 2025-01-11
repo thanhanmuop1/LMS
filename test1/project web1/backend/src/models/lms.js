@@ -1,10 +1,13 @@
-const db = require('../configs/database');
+const db = require('../config/database');
 
 const lms = {
     getAllCourses: () => {
         return new Promise((resolve, reject) => {
             const query = `
-                SELECT c.*, u.full_name as teacher_name 
+                SELECT c.*, u.full_name as teacher_name,
+                       (SELECT COUNT(*) 
+                        FROM course_enrollments 
+                        WHERE course_id = c.id) as student_count
                 FROM courses c
                 LEFT JOIN users u ON c.teacher_id = u.id
                 ORDER BY c.created_at DESC
@@ -145,22 +148,6 @@ const lms = {
         });
     },
 
-    deleteChaptersByCourseId: (courseId) => {
-        return new Promise((resolve, reject) => {
-            db.query(
-                'DELETE FROM chapters WHERE course_id = ?',
-                [courseId],
-                (error, results) => {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(results);
-                }
-            );
-        });
-    },
-
     getCourseById: (courseId) => {
         return new Promise((resolve, reject) => {
             const query = `
@@ -179,27 +166,16 @@ const lms = {
         });
     },
 
-    updateCourse: (courseId, courseData) => {
+    updateCourse: (courseId, { title, description, thumbnail, is_public }) => {
         return new Promise((resolve, reject) => {
+            const query = `
+                UPDATE courses 
+                SET title = ?, description = ?, thumbnail = ?, is_public = ?
+                WHERE id = ?
+            `;
             db.query(
-                'UPDATE courses SET title = ?, description = ?, thumbnail = ? WHERE id = ?',
-                [courseData.title, courseData.description, courseData.thumbnail, courseId],
-                (error, results) => {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve({ id: courseId, ...courseData });
-                }
-            );
-        });
-    },
-
-    deleteVideosByCourseId: (courseId) => {
-        return new Promise((resolve, reject) => {
-            db.query(
-                'DELETE FROM videos WHERE course_id = ?',
-                [courseId],
+                query,
+                [title, description, thumbnail, is_public, courseId],
                 (error, results) => {
                     if (error) {
                         reject(error);
@@ -259,47 +235,20 @@ const lms = {
         });
     },
 
-
-
-    deleteVideosByChapterId: (chapterId) => {
+    createVideo: (videoData) => {
         return new Promise((resolve, reject) => {
+            const { title, video_url, chapter_id, course_id } = videoData;
+            
             db.query(
-                'DELETE FROM videos WHERE chapter_id = ?',
-                [chapterId],
-                (error, results) => {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(results);
-                }
-            );
-        });
-    },
-
-    createVideo: ({ title, video_url, chapter_id, course_id }) => {
-        return new Promise((resolve, reject) => {
-            const query = `
-                INSERT INTO videos 
-                (title, video_url, chapter_id, course_id, created_at) 
-                VALUES (?, ?, ?, ?, NOW())
-            `;
-
-            db.query(
-                query,
+                `INSERT INTO videos (title, video_url, chapter_id, course_id, created_at)
+                 VALUES (?, ?, ?, ?, NOW())`,
                 [title, video_url, chapter_id, course_id],
                 (error, results) => {
                     if (error) {
                         reject(error);
                         return;
                     }
-                    resolve({
-                        id: results.insertId,
-                        title,
-                        video_url,
-                        chapter_id,
-                        course_id
-                    });
+                    resolve({ id: results.insertId, ...videoData });
                 }
             );
         });
@@ -387,44 +336,43 @@ const lms = {
 
     updateCourseVisibility: (courseId, isPublic) => {
         return new Promise((resolve, reject) => {
-            const query = `
-                UPDATE courses 
-                SET is_public = ? 
-                WHERE id = ?
-            `;
-            db.query(query, [isPublic, courseId], (error, results) => {
-                if (error) {
-                    console.error("Error updating course visibility:", error);
-                    reject(error);
-                    return;
+            db.query(
+                'UPDATE courses SET is_public = ? WHERE id = ?',
+                [isPublic, courseId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results);
                 }
-                resolve(results);
-            });
+            );
         });
     },
 
     getCourseVisibility: (courseId) => {
         return new Promise((resolve, reject) => {
-            const query = `
-                SELECT is_public 
-                FROM courses 
-                WHERE id = ?
-            `;
-            db.query(query, [courseId], (error, results) => {
-                if (error) {
-                    console.error("Error fetching course visibility:", error);
-                    reject(error);
-                    return;
+            db.query(
+                'SELECT is_public FROM courses WHERE id = ?',
+                [courseId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(results[0]?.is_public || false);
                 }
-                resolve(results[0]?.is_public);
-            });
+            );
         });
     },
 
     getTeacherCourses: (teacherId) => {
         return new Promise((resolve, reject) => {
             const query = `
-                SELECT c.*, u.full_name as teacher_name 
+                SELECT c.*, u.full_name as teacher_name,
+                       (SELECT COUNT(*) 
+                        FROM course_enrollments 
+                        WHERE course_id = c.id) as student_count
                 FROM courses c
                 LEFT JOIN users u ON c.teacher_id = u.id
                 WHERE c.teacher_id = ?
@@ -478,22 +426,6 @@ const lms = {
             db.query(
                 'SELECT * FROM chapters WHERE id = ?',
                 [chapterId],
-                (error, results) => {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(results[0]);
-                }
-            );
-        });
-    },
-
-    getDocumentById: (documentId) => {
-        return new Promise((resolve, reject) => {
-            db.query(
-                'SELECT * FROM documents WHERE id = ?',
-                [documentId],
                 (error, results) => {
                     if (error) {
                         reject(error);
@@ -570,7 +502,67 @@ const lms = {
                 resolve(results);
             });
         });
-    }
+    },
+
+    getStudentsByCourseId: (courseId) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                SELECT u.id, u.username, u.email, u.full_name, ce.enrolled_at
+                FROM users u
+                JOIN course_enrollments ce ON u.id = ce.user_id
+                WHERE ce.course_id = ?
+                ORDER BY ce.enrolled_at DESC
+            `;
+            
+            db.query(query, [courseId], (error, results) => {
+                if (error) {
+                    console.error('Error in getStudentsByCourseId:', error);
+                    reject(error);
+                    return;
+                }
+                resolve(results);
+            });
+        });
+    },
+
+    isStudentEnrolled: (studentId, courseId) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                SELECT COUNT(*) as count 
+                FROM course_enrollments 
+                WHERE student_id = ? AND course_id = ?
+            `;
+            
+            db.query(query, [studentId, courseId], (error, results) => {
+                if (error) {
+                    console.error('Error in isStudentEnrolled:', error);
+                    reject(error);
+                    return;
+                }
+                resolve(results[0].count > 0);
+            });
+        });
+    },
+
+    deleteStudentFromCourse: (courseId, userId) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                DELETE FROM course_enrollments 
+                WHERE course_id = ? AND user_id = ?
+            `;
+            
+            db.query(query, [courseId, userId], (error, results) => {
+                if (error) {
+                    console.error('Error deleting student from course:', error);
+                    reject(error);
+                    return;
+                }
+                resolve(results);
+            });
+        });
+    },
+
 }
+
 
 module.exports = lms;

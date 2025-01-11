@@ -12,7 +12,7 @@ const QuizManagement = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/courses');
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/courses`);
       setCourses(response.data);
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -23,7 +23,7 @@ const QuizManagement = () => {
   const fetchQuizzes = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/quizzes');
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/quizzes`);
       setQuizzes(response.data);
     } catch (error) {
       console.error('Error fetching quizzes:', error);
@@ -41,7 +41,7 @@ const QuizManagement = () => {
   const handleDelete = async (quizId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/quizzes/${quizId}`, {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/quizzes/${quizId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       message.success('Xóa quiz thành công');

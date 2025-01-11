@@ -1,12 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import { Button, Spin, Modal, List, Empty, Tag, Typography, Space } from 'antd';
+import { Button, Spin, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import VideoTableColumns from './VideoTableColumns';
 import ChapterCard from './ChapterCard';
+import VideoAssignQuizModal from './VideoAssignQuizModal';
 import './video_management.css';
 
 const { Title } = Typography;
-const { confirm } = Modal;
 
 const VideoManagementBase = ({
   courseInfo,
@@ -27,6 +27,7 @@ const VideoManagementBase = ({
   onAssignQuizModalClose,
   onQuizAssign,
   onQuizUnassign,
+  role,
 }) => {
   const videoColumns = VideoTableColumns({
     onEdit: onEditVideo,
@@ -67,65 +68,15 @@ const VideoManagementBase = ({
           ))}
         </div>
 
-        <Modal
-          title={`Quản lý Quiz cho Video: ${selectedVideoForQuiz?.title || ''}`}
-          open={isAssignQuizVisible}
+        <VideoAssignQuizModal
+          visible={isAssignQuizVisible}
           onCancel={onAssignQuizModalClose}
-          footer={null}
-          width={800}
-        >
-          {availableQuizzes.length === 0 ? (
-            <Empty 
-              description="Không có quiz nào khả dụng"
-              image={Empty.PRESENTED_IMAGE_SIMPLE} 
-            />
-          ) : (
-            <List
-              dataSource={availableQuizzes}
-              renderItem={quiz => (
-                <List.Item
-                  actions={[
-                    quiz.is_assigned ? (
-                      <Button
-                        type="primary"
-                        danger
-                        onClick={() => onQuizUnassign(quiz.id)}
-                      >
-                        Hủy gán
-                      </Button>
-                    ) : (
-                      <Button
-                        type="primary"
-                        onClick={() => onQuizAssign(quiz.id)}
-                      >
-                        Gán
-                      </Button>
-                    )
-                  ]}
-                >
-                  <List.Item.Meta
-                    title={
-                      <Space>
-                        {quiz.title}
-                        {quiz.is_assigned && (
-                          <Tag color="green">Đã gán</Tag>
-                        )}
-                      </Space>
-                    }
-                    description={
-                      <Space direction="vertical">
-                        <span>Loại: Quiz video</span>
-                        <span>Thời gian: {quiz.duration_minutes} phút</span>
-                        <span>Điểm đạt: {quiz.passing_score}%</span>
-                        <span>Số câu hỏi: {quiz.question_count}</span>
-                      </Space>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
-          )}
-        </Modal>
+          selectedVideo={selectedVideoForQuiz}
+          availableQuizzes={availableQuizzes}
+          onQuizAssign={onQuizAssign}
+          onQuizUnassign={onQuizUnassign}
+          role={role}
+        />
       </Spin>
     </div>
   );

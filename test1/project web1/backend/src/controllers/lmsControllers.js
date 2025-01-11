@@ -1,4 +1,5 @@
 const lms = require('../models/lms');
+const document = require('../models/document');
 
 const getAllCourses = async (req, res) => {
     try {
@@ -78,13 +79,15 @@ const createCourse = async (req, res) => {
 
         const { title, description, thumbnail, is_public } = req.body;
         const teacher_id = req.user.id; // Lấy ID của người tạo
+        const school_id = req.school.id; // Lấy school_id từ middleware
 
         const course = await lms.createCourse({ 
             title, 
             description, 
             thumbnail,
-            is_public: req.user.role === 'admin' ? is_public : false, // Teacher mặc định tạo khóa private
-            teacher_id
+            is_public,
+            teacher_id,
+            school_id
         });
         
         res.status(201).json(course);
@@ -108,14 +111,7 @@ const deleteCourse = async (req, res) => {
             (req.user.role === 'teacher' && course.teacher_id !== req.user.id)) {
             return res.status(403).json({ message: 'Không có quyền thực hiện' });
         }
-
-        // Xóa tất cả videos của khóa học
-        await lms.deleteVideosByCourseId(courseId);
-        
-        // Xóa tất cả chapters của khóa học
-        await lms.deleteChaptersByCourseId(courseId);
-        
-        // Cuối cùng xóa khóa học
+        // Xóa course
         await lms.deleteCourse(courseId);
         
         res.status(200).json({ message: 'Xóa khóa học thành công' });
@@ -129,15 +125,15 @@ const updateCourse = async (req, res) => {
     try {
         const courseId = req.params.courseId;
         
-        // Kiểm tra quyền cập nhật
+        // Kiểm tra khóa học có tồn tại không
         const course = await lms.getCourseById(courseId);
         if (!course) {
             return res.status(404).json({ message: 'Không tìm thấy khóa học' });
         }
 
-        if (req.user.role !== 'admin' && 
-            (req.user.role === 'teacher' && course.teacher_id !== req.user.id)) {
-            return res.status(403).json({ message: 'Không có quyền thực hiện' });
+        // Kiểm tra quyền - admin có thể sửa tất cả, giáo viên chỉ sửa được khóa học của mình
+        if (req.user.role !== 'admin' && course.teacher_id !== req.user.id) {
+            return res.status(403).json({ message: 'Không có quyền chỉnh sửa khóa học này' });
         }
 
         const { title, description, thumbnail, is_public } = req.body;
@@ -146,7 +142,7 @@ const updateCourse = async (req, res) => {
             title, 
             description, 
             thumbnail,
-            is_public: req.user.role === 'admin' ? is_public : course.is_public // Chỉ admin được thay đổi trạng thái public
+            is_public: typeof is_public === 'boolean' ? is_public : course.is_public // Chỉ cập nhật nếu có gửi lên
         });
         
         res.status(200).json(updatedCourse);
@@ -174,7 +170,7 @@ const getCourseById = async (req, res) => {
 
 const createChapter = async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
+        if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
             return res.status(403).json({ message: 'Không có quyền thực hiện' });
         }
 
@@ -222,14 +218,12 @@ const updateChapter = async (req, res) => {
 
 const deleteChapter = async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
+        // Cho phép admin và teacher xóa chương
+        if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
             return res.status(403).json({ message: 'Không có quyền thực hiện' });
         }
 
         const chapterId = req.params.chapterId;
-
-        // Xóa tất cả video trong chương
-        await lms.deleteVideosByChapterId(chapterId);
         // Xóa chương
         await lms.deleteChapter(chapterId);
         
@@ -242,7 +236,8 @@ const deleteChapter = async (req, res) => {
 
 const createVideo = async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
+        // Cho phép cả admin và teacher tạo video
+        if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
             return res.status(403).json({ message: 'Không có quyền thực hiện' });
         }
 
@@ -264,8 +259,24 @@ const createVideo = async (req, res) => {
                 }
             });
         }
+
+        // Kiểm tra quyền với khóa học
+        if (req.user.role === 'teacher') {
+            const course = await lms.getCourseById(course_id);
+            if (!course || course.teacher_id !== req.user.id) {
+                return res.status(403).json({ message: 'Không có quyền thêm video vào khóa học này' });
+            }
+        }
         
-        const result = await lms.createVideo(chapterId, course_id, title, video_url);
+        // Tạo video với đầy đủ thông tin
+        const videoData = {
+            title,
+            video_url,
+            chapter_id: chapterId,
+            course_id
+        };
+        
+        const result = await lms.createVideo(videoData);
         res.status(201).json(result);
     } catch (error) {
         console.error('Error creating video:', error);
@@ -278,12 +289,20 @@ const createVideo = async (req, res) => {
 
 const updateVideo = async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Không có quyền thực hiện' });
-        }
-
         const videoId = req.params.videoId;
         const { title, video_url } = req.body;
+
+        // Kiểm tra video có tồn tại không
+        const video = await lms.getVideoById(videoId);
+        if (!video) {
+            return res.status(404).json({ message: 'Không tìm thấy video' });
+        }
+
+        // Kiểm tra quyền - admin có thể sửa tất cả, giáo viên chỉ sửa được video trong khóa học của mình
+        const course = await lms.getCourseById(video.course_id);
+        if (req.user.role !== 'admin' && course.teacher_id !== req.user.id) {
+            return res.status(403).json({ message: 'Không có quyền chỉnh sửa video này' });
+        }
         
         await lms.updateVideo(videoId, title, video_url);
         res.status(200).json({ message: 'Cập nhật video thành công' });
@@ -295,14 +314,15 @@ const updateVideo = async (req, res) => {
 
 const deleteVideo = async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Không có quyền thực hiện' });
+        const videoId = req.params.videoId;
+        
+        // Kiểm tra video có tồn tại không
+        const video = await lms.getVideoById(videoId);
+        if (!video) {
+            return res.status(404).json({ message: 'Không tìm thấy video' });
         }
 
-        const videoId = req.params.videoId;
-
-        // Xóa video
-        await lms.deleteVideo(videoId);
+        await lms.deleteVideo(videoId);  // xóa video
         
         res.status(200).json({ message: 'Xóa video thành công' });
     } catch (error) {
@@ -349,7 +369,7 @@ const uploadThumbnail = async (req, res) => {
     }
 
     // Trả về đường dẫn file
-    const thumbnailUrl = `${req.protocol}://${req.get('host')}/uploads/thumbnails/${req.file.filename}`;
+    const thumbnailUrl = `/uploads/thumbnails/${req.file.filename}`;
     res.status(200).json({ url: thumbnailUrl });
   } catch (error) {
     console.error('Error uploading thumbnail:', error);
@@ -359,15 +379,26 @@ const uploadThumbnail = async (req, res) => {
 
 const updateCourseVisibility = async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Không có quyền thực hiện' });
-        }
-
         const courseId = req.params.courseId;
         const { isPublic } = req.body;
 
+        // Kiểm tra khóa học có tồn tại không
+        const course = await lms.getCourseById(courseId);
+        if (!course) {
+            return res.status(404).json({ message: 'Không tìm thấy khóa học' });
+        }
+
+        // Kiểm tra quyền - admin có thể sửa tất cả, giáo viên chỉ sửa được khóa học của mình
+        if (req.user.role !== 'admin' && course.teacher_id !== req.user.id) {
+            return res.status(403).json({ 
+                message: 'Không có quyền thay đổi trạng thái khóa học này' 
+            });
+        }
+
         await lms.updateCourseVisibility(courseId, isPublic);
-        res.json({ message: 'Course visibility updated successfully' });
+        res.json({ 
+            message: `Khóa học đã được ${isPublic ? 'public' : 'private'}` 
+        });
     } catch (error) {
         console.error('Error updating course visibility:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -384,6 +415,63 @@ const getCourseVisibility = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+
+const getStudentsByCourse = async (req, res) => {
+  try {
+    const courseId = req.params.courseId;
+    
+    // Kiểm tra khóa học tồn tại
+    const course = await lms.getCourseById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Không tìm thấy khóa học' });
+    }
+
+    // Kiểm tra quyền truy cập (chỉ admin và giáo viên của khóa học)
+    if (req.user.role !== 'admin' && 
+        (req.user.role === 'teacher' && course.teacher_id !== req.user.id)) {
+      return res.status(403).json({ 
+        message: 'Không có quyền xem danh sách học sinh của khóa học này' 
+      });
+    }
+
+    const students = await lms.getStudentsByCourseId(courseId);
+    res.json(students);
+  } catch (error) {
+    console.error('Error getting students by course:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const removeStudentFromCourse = async (req, res) => {
+    try {
+        const courseId = req.params.courseId;
+        const userId = req.params.userId;
+
+        // Kiểm tra khóa học tồn tại
+        const course = await lms.getCourseById(courseId);
+        if (!course) {
+            return res.status(404).json({ message: 'Không tìm thấy khóa học' });
+        }
+
+        // Kiểm tra quyền truy cập (chỉ admin và giáo viên của khóa học)
+        if (req.user.role !== 'admin' && 
+            (req.user.role === 'teacher' && course.teacher_id !== req.user.id)) {
+            return res.status(403).json({ 
+                message: 'Không có quyền xóa học viên khỏi khóa học này' 
+            });
+        }
+        
+        // Sau đó xóa khỏi khóa học
+        await lms.deleteStudentFromCourse(courseId, userId);
+        
+        res.status(200).json({ 
+            message: 'Đã xóa học viên khỏi khóa học thành công' 
+        });
+    } catch (error) {
+        console.error('Error removing student from course:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
 
 module.exports = { 
     getAllCourses,
@@ -406,6 +494,8 @@ module.exports = {
     getCompletedVideos,
     uploadThumbnail,
     updateCourseVisibility,
-    getCourseVisibility
+    getCourseVisibility,
+    getStudentsByCourse,
+    removeStudentFromCourse
 };
 

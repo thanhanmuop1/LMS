@@ -1,0 +1,400 @@
+/* Base styles */
+html {
+  scroll-behavior: smooth;
+}
+
+.landing-layout {
+  min-height: 100vh;
+}
+
+/* Header styles */
+.landing-header {
+  background: transparent;
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
+  padding: 0;
+  transition: all 0.3s ease;
+  height: 64px;
+  line-height: 64px;
+}
+
+.landing-header.scrolled {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+/* Logo styles */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-image {
+  height: 32px;
+  width: auto;
+}
+
+.logo-text {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+/* Menu styles */
+.desktop-menu {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.transparent-menu {
+  background: transparent !important;
+  border: none;
+}
+
+.transparent-menu .ant-menu-item {
+  color: white !important;
+  font-weight: 500;
+  padding: 0 20px;
+  margin: 0 4px;
+  transition: all 0.3s ease;
+}
+
+.transparent-menu .ant-menu-item:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Auth buttons */
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.login-button {
+  color: white !important;
+}
+
+/* Scrolled state styles */
+.scrolled .logo-text,
+.scrolled .transparent-menu .ant-menu-item,
+.scrolled .login-button,
+.scrolled .mobile-menu-button {
+  color: #001529 !important;
+}
+
+/* Hero section */
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  height: 100vh;
+}
+
+.hero-slide {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* Background images for slides */
+.hero-slide.slide-1 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url('../../assets/images/95465964_p0.png');
+}
+
+.hero-slide.slide-2 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url('../../assets/images/92769851_p0.jpg');
+}
+
+.hero-slide.slide-3 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url('../../assets/images/96619278_p0.png');
+}
+
+/* Hero content */
+.hero-slide .ant-row {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.hero-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 800px;
+  padding: 0 1rem;
+  z-index: 2;
+}
+
+.hero-title {
+  color: white !important;
+  margin-bottom: 1.5rem !important;
+  text-align: center;
+}
+
+.hero-description {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 1.2rem !important;
+  margin-bottom: 2rem !important;
+  text-align: center;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.secondary-button {
+  background: transparent !important;
+  border: 2px solid white !important;
+  color: white !important;
+}
+
+/* Carousel dots */
+.hero-section .ant-carousel .slick-dots li button {
+  background: rgba(255, 255, 255, 0.3);
+  height: 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.hero-section .ant-carousel .slick-dots li.slick-active button {
+  background: white;
+  width: 24px;
+}
+
+/* Carousel container */
+.hero-section .ant-carousel,
+.hero-section .slick-slider,
+.hero-section .slick-list,
+.hero-section .slick-track {
+  height: 100%;
+}
+
+.hero-section .slick-slide > div {
+  height: 100%;
+}
+
+/* Điều chỉnh vị trí dots */
+.hero-section .ant-carousel .slick-dots {
+  bottom: 40px;
+  z-index: 3;
+}
+
+/* Features section */
+.features-section {
+  padding: 5rem 1rem;
+  background: #f0f2f5;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 3rem !important;
+}
+
+.feature-card {
+  text-align: center;
+  height: 100%;
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  border-color: #1890ff;
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: #1890ff;
+  transition: all 0.3s ease;
+}
+
+/* Pricing section */
+.pricing-section {
+  padding: 5rem 1rem;
+  background: white;
+}
+
+.pricing-card {
+  height: 100%;
+  text-align: center;
+  transition: all 0.3s ease;
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.pricing-card.featured {
+  transform: scale(1.05);
+  border: 2px solid #1890ff;
+  position: relative;
+}
+
+.price {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #1890ff;
+  margin: 1rem 0;
+}
+
+.pricing-features {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.pricing-features li {
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pricing-features li.disabled {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* Contact section */
+.contact-section {
+  padding: 5rem 1rem;
+  background: #f0f2f5;
+}
+
+.contact-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Footer */
+.landing-footer {
+  background: #001529;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 4rem 2rem;
+}
+
+.landing-footer .ant-typography {
+  color: white !important;
+}
+
+/* Responsive styles */
+@media (max-width: 991px) {
+  .desktop-menu {
+    display: none;
+  }
+
+  .mobile-menu-button {
+    display: block;
+    color: white;
+  }
+
+  .header-container {
+    padding: 0 1rem;
+  }
+
+  .pricing-card.featured {
+    transform: none;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 992px) {
+  .mobile-menu-button {
+    display: none;
+  }
+
+  .features-section,
+  .pricing-section,
+  .contact-section {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .hero-title {
+    font-size: 3.5rem !important;
+  }
+
+  .hero-description {
+    font-size: 1.4rem !important;
+  }
+}
+
+/* Mobile drawer */
+.mobile-drawer .ant-drawer-body {
+  padding: 0;
+}
+
+.mobile-drawer .ant-menu {
+  border-right: none;
+}
+
+.mobile-drawer .ant-menu-item {
+  padding: 0 24px !important;
+  margin: 0 !important;
+  height: 48px;
+  line-height: 48px;
+}
+
+.mobile-drawer .auth-buttons {
+  padding: 16px 24px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobile-drawer .auth-buttons .ant-btn {
+  width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-content {
+    padding: 0 1rem;
+  }
+  
+  .hero-title {
+    font-size: 2rem !important;
+  }
+  
+  .hero-description {
+    font-size: 1rem !important;
+  }
+} 

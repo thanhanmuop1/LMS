@@ -1,27 +1,29 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = `${process.env.REACT_APP_API_URL}`;
 
 const authService = {
     login: async (credentials) => {
         try {
-            const response = await axios.post(`${BASE_URL}/auth/login`, credentials);
+            const response = await axios.post(`${BASE_URL}/login`, credentials);
             const { token, user } = response.data;
             
-            console.log('Auth response:', response.data); // Debug log
-            
-            // Lưu token và role vào localStorage
             localStorage.setItem('token', token);
             localStorage.setItem('role', user.role);
             localStorage.setItem('user', JSON.stringify(user));
             
-            // Kiểm tra xem đã lưu thành công chưa
-            const storedRole = localStorage.getItem('role');
-            console.log('Stored role after login:', storedRole); // Debug log
-            
             return response.data;
         } catch (error) {
-            console.error('Auth error:', error); // Debug log
+            if (error.response?.data?.needsVerification) {
+                const verificationError = new Error('Vui lòng xác thực email trước khi đăng nhập');
+                verificationError.response = {
+                    data: {
+                        needsVerification: true,
+                        message: 'Vui lòng xác thực email trước khi đăng nhập'
+                    }
+                };
+                throw verificationError;
+            }
             throw error;
         }
     },

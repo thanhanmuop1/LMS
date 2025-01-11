@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = process.env.REACT_APP_API_URL;
 
 // Tạo instance axios với cấu hình chung
 const api = axios.create({
@@ -111,5 +111,8 @@ const apiService = {
     return api.delete(url);
   }
 };
+
+console.log('API URL:', process.env.REACT_APP_API_URL);
+console.log('Full URL example:', `${process.env.REACT_APP_API_URL}/courses`);
 
 export default apiService; 

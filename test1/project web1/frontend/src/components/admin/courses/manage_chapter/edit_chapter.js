@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, message } from 'antd';
-import apiService from '../../../../services/apiService';
+import axios from 'axios';
 
 const EditChapter = ({ visible, onCancel, onSuccess, chapterData }) => {
   const [form] = Form.useForm();
@@ -15,8 +15,11 @@ const EditChapter = ({ visible, onCancel, onSuccess, chapterData }) => {
 
   const handleSubmit = async (values) => {
     try {
-      await apiService.put('updateChapter', values, { 
-        id: chapterData.id
+      const token = localStorage.getItem('token');
+      await axios.put(`${process.env.REACT_APP_API_URL}/chapters/${chapterData.id}`, values, { 
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       
       message.success('Cập nhật chương thành công');

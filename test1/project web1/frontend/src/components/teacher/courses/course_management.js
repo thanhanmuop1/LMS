@@ -4,6 +4,7 @@ import axios from 'axios';
 import AddCourse from '../../admin/courses/manage_course/add_course';
 import EditCourse from '../../admin/courses/manage_course/edit_course';
 import CourseTableColumns from '../../common/course/CourseTableColumns';
+import CourseStudents from '../../common/course/CourseStudents';
 
 const { confirm } = Modal;
 
@@ -13,21 +14,23 @@ const CourseManagement = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [isStudentsModalVisible, setIsStudentsModalVisible] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
 
   useEffect(() => {
     fetchCourses();
   }, []);
 
   const fetchCourses = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/teacher/courses', {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/teacher/courses`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCourses(response.data);
     } catch (error) {
-      message.error('Lỗi khi tải danh sách khóa học');
+      message.error('Có lỗi xảy ra khi tải danh sách khóa học');
     } finally {
       setLoading(false);
     }
@@ -43,13 +46,13 @@ const CourseManagement = () => {
       onOk: async () => {
         try {
           const token = localStorage.getItem('token');
-          await axios.delete(`http://localhost:5000/teacher/courses/${courseId}`, {
+          await axios.delete(`${process.env.REACT_APP_API_URL}/courses/${courseId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           message.success('Xóa khóa học thành công');
           fetchCourses();
         } catch (error) {
-          message.error('Lỗi khi xóa khóa học');
+          message.error('Có lỗi xảy ra khi xóa khóa học');
         }
       }
     });
@@ -60,11 +63,27 @@ const CourseManagement = () => {
     setIsEditModalVisible(true);
   };
 
+  const handleViewStudents = (courseId) => {
+    setSelectedCourseId(courseId);
+    setIsStudentsModalVisible(true);
+  };
+
+  const handleStudentRemoved = () => {
+    fetchCourses();
+  };
+
   return (
     <div>
-      <Button type="primary" onClick={() => setIsModalVisible(true)}>Thêm khóa học</Button>
+      <Button type="primary" onClick={() => setIsModalVisible(true)}>
+        Thêm khóa học
+      </Button>
       <Table 
-        columns={CourseTableColumns({ onEdit: handleEdit, onDelete: handleDelete, role: 'teacher' })} 
+        columns={CourseTableColumns({ 
+          onEdit: handleEdit,
+          onDelete: handleDelete, 
+          role: 'teacher',
+          onViewStudents: handleViewStudents
+        })} 
         dataSource={courses} 
         loading={loading} 
         rowKey="id" 
@@ -91,6 +110,16 @@ const CourseManagement = () => {
           fetchCourses();
         }}
         courseData={selectedCourse}
+      />
+
+      <CourseStudents
+        visible={isStudentsModalVisible}
+        onCancel={() => {
+          setIsStudentsModalVisible(false);
+          setSelectedCourseId(null);
+        }}
+        courseId={selectedCourseId}
+        onStudentRemoved={handleStudentRemoved}
       />
     </div>
   );

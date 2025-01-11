@@ -1,9 +1,9 @@
 import React from 'react';
-import { Button, Space, Image, Tag } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Space, Image, Tag, Tooltip } from 'antd';
+import { EditOutlined, DeleteOutlined, TeamOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
-const CourseTableColumns = ({ onEdit, onDelete, role }) => {
+const CourseTableColumns = ({ onEdit, onDelete, role, onViewStudents}) => {
   const navigate = useNavigate();
 
   const handleRowClick = (record) => {
@@ -20,7 +20,7 @@ const CourseTableColumns = ({ onEdit, onDelete, role }) => {
       render: (thumbnailUrl) => (
         thumbnailUrl ? (
           <Image 
-            src={thumbnailUrl}
+            src={`${process.env.REACT_APP_API_URL}${thumbnailUrl}`}
             alt="Course thumbnail"
             style={{ 
               width: 100, 
@@ -68,12 +68,21 @@ const CourseTableColumns = ({ onEdit, onDelete, role }) => {
       dataIndex: 'description',
       key: 'description',
       render: (text, record) => (
-        <div
-          onClick={() => handleRowClick(record)}
-          style={{ cursor: 'pointer' }}
-        >
-          {text}
-        </div>
+        <Tooltip title={text} mouseEnterDelay={0.5}>
+          <span
+            onClick={() => handleRowClick(record)}
+            style={{ 
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: 200,
+              display: 'inline-block'  // Add this
+            }}
+          >
+            {text}
+          </span>
+        </Tooltip>
       ),
     },
     {
@@ -87,6 +96,22 @@ const CourseTableColumns = ({ onEdit, onDelete, role }) => {
         >
           {text}
         </div>
+      ),
+    },
+    {
+      title: 'Học viên',
+      dataIndex: 'student_count',
+      key: 'student_count',
+      render: (count, record) => (
+        <Button
+          type="link"
+          onClick={(e) => {
+            onViewStudents(record.id);
+          }}
+          icon={<TeamOutlined />}
+        >
+          {count || 0}
+        </Button>
       ),
     },
     {

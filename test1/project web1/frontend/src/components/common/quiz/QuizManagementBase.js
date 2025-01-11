@@ -99,6 +99,13 @@ const QuizManagementBase = ({
             onClick={() => onEdit(record)}
           />
           <Button
+            type="primary"
+            size="small"
+            onClick={() => onQuestionClick(record)}
+          >
+            Thêm câu hỏi
+          </Button>
+          <Button
             type="text"
             danger
             icon={<DeleteOutlined />}

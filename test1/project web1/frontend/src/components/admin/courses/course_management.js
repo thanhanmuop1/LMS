@@ -5,6 +5,7 @@ import AddCourse from './manage_course/add_course';
 import EditCourse from './manage_course/edit_course';
 import CourseTableColumns from '../../common/course/CourseTableColumns';
 import axios from 'axios';
+import CourseStudents from '../../common/course/CourseStudents';
 
 const { confirm } = Modal;
 
@@ -13,6 +14,8 @@ const CourseManagement = ({ courses, loading, onCourseAdded }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [isStudentsModalVisible, setIsStudentsModalVisible] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
 
   const handleEdit = (record) => {
     setSelectedCourse(record);
@@ -29,7 +32,7 @@ const CourseManagement = ({ courses, loading, onCourseAdded }) => {
       onOk: async () => {
         try {
           const token = localStorage.getItem('token');
-          await axios.delete(`http://localhost:5000/courses/${courseId}`, {
+          await axios.delete(`${process.env.REACT_APP_API_URL}/courses/${courseId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           message.success('Xóa khóa học thành công');
@@ -43,11 +46,22 @@ const CourseManagement = ({ courses, loading, onCourseAdded }) => {
     });
   };
 
+  const handleViewStudents = (courseId) => {
+    setSelectedCourseId(courseId);
+    setIsStudentsModalVisible(true);
+  };
+
+  const handleStudentRemoved = () => {
+    if (onCourseAdded) {
+      onCourseAdded();
+    }
+  };
+
   return (
     <div>
       <Button type="primary" onClick={() => setIsModalVisible(true)}>Thêm khóa học</Button>
       <Table 
-        columns={CourseTableColumns({ onEdit: handleEdit, onDelete: handleDelete, role: 'admin' })} 
+        columns={CourseTableColumns({ onEdit: handleEdit, onDelete: handleDelete, role: 'admin', onViewStudents: handleViewStudents })} 
         dataSource={courses} 
         loading={loading} 
         rowKey="id"
@@ -78,6 +92,16 @@ const CourseManagement = ({ courses, loading, onCourseAdded }) => {
           }
         }}
         courseData={selectedCourse}
+      />
+
+      <CourseStudents
+        visible={isStudentsModalVisible}
+        onCancel={() => {
+          setIsStudentsModalVisible(false);
+          setSelectedCourseId(null);
+        }}
+        courseId={selectedCourseId}
+        onStudentRemoved={handleStudentRemoved}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Row, Col, Statistic } from 'antd';
-import { UserOutlined, ReadOutlined, FileOutlined } from '@ant-design/icons';
+import { UserOutlined, ReadOutlined } from '@ant-design/icons';
 
 const Dashboard = ({ courses = [], users = [] }) => {
   const totalStudents = users.filter(user => user.role === 'student').length;
@@ -49,7 +49,7 @@ const Dashboard = ({ courses = [], users = [] }) => {
           <Col span={8} key={course.id}>
             <Card title={course.title}>
               <p>Giảng viên: {course.teacher_name || 'Chưa phân công'}</p>
-              <p>Số bài học: {course.lesson_count || 0}</p>
+              <p>Số học viên: {course.student_count || 0}</p>
             </Card>
           </Col>
         ))}

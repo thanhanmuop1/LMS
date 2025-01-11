@@ -1,0 +1,23 @@
+/*  import home.js */
+/* Layout styles */
+
+.layout {
+  display: flex;
+  height: 100vh;
+  background-color: #f9fafb;
+}
+
+/* Main content styles */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Main content area */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+} 

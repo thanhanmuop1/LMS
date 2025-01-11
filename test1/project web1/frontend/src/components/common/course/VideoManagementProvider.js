@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { message, Modal } from 'antd';
 import axios from 'axios';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 const { confirm } = Modal;
 
@@ -16,7 +15,7 @@ const VideoManagementProvider = ({
   const [courseInfo, setCourseInfo] = useState(null);
   const [availableQuizzes, setAvailableQuizzes] = useState([]);
 
-  const baseUrl = role === 'admin' ? 'http://localhost:5000' : 'http://localhost:5000/teacher';
+  const baseUrl = role === 'admin' ? process.env.REACT_APP_API_URL : `${process.env.REACT_APP_API_URL}/teacher`;
 
   const fetchCourseData = async () => {
     try {
@@ -50,7 +49,7 @@ const VideoManagementProvider = ({
       onOk: async () => {
         try {
           const token = localStorage.getItem('token');
-          await axios.delete(`${baseUrl}/videos/${videoId}`, {
+          await axios.delete(`${process.env.REACT_APP_API_URL}/videos/${videoId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           message.success('Xóa video thành công');
@@ -72,7 +71,7 @@ const VideoManagementProvider = ({
       onOk: async () => {
         try {
           const token = localStorage.getItem('token');
-          await axios.delete(`${baseUrl}/chapters/${chapterId}`, {
+          await axios.delete(`${process.env.REACT_APP_API_URL}/chapters/${chapterId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           message.success('Xóa chương thành công');
@@ -87,16 +86,13 @@ const VideoManagementProvider = ({
   const handleAssignQuiz = async (videoId, quizId) => {
     try {
       const token = localStorage.getItem('token');
-      const endpoint = role === 'admin' 
-        ? `${baseUrl}/quizzes/${quizId}/assign`
-        : `${baseUrl}/videos/${videoId}/quiz`;
-      
-      const method = role === 'admin' ? 'put' : 'post';
-      const data = role === 'admin' 
-        ? { video_id: videoId, chapter_id: videos.find(v => v.id === videoId)?.chapter_id }
-        : { quiz_id: quizId };
+      const endpoint = `${process.env.REACT_APP_API_URL}/quizzes/${quizId}/assign`;
+      const data = { 
+        video_id: videoId, 
+        chapter_id: videos.find(v => v.id === videoId)?.chapter_id 
+      };
 
-      await axios[method](endpoint, data, {
+      await axios.put(endpoint, data, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -117,26 +113,17 @@ const VideoManagementProvider = ({
   const handleUnassignQuiz = async (videoId, quizId) => {
     try {
       const token = localStorage.getItem('token');
-      const endpoint = role === 'admin'
-        ? `${baseUrl}/quizzes/${quizId}/unassign`
-        : `${baseUrl}/videos/${videoId}/quiz/${quizId}`;
+      const endpoint = `${process.env.REACT_APP_API_URL}/quizzes/${quizId}/unassign`;
       
-      const method = role === 'admin' ? 'put' : 'delete';
-      const config = {
+      await axios.put(endpoint, {
+        video_id: videoId,
+        chapter_id: videos.find(v => v.id === videoId)?.chapter_id
+      }, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
-      };
-
-      if (role === 'admin') {
-        await axios[method](endpoint, {
-          video_id: videoId,
-          chapter_id: videos.find(v => v.id === videoId)?.chapter_id
-        }, config);
-      } else {
-        await axios[method](endpoint, config);
-      }
+      });
 
       message.success('Hủy gán quiz thành công');
       await fetchAvailableQuizzes(videoId);

@@ -11,7 +11,7 @@ const AddCourse = ({ visible, onCancel, onSuccess }) => {
   const handleSubmit = async (values) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/courses', {
+      await axios.post(`${process.env.REACT_APP_API_URL}/courses`, {
         ...values,
         thumbnail: imageUrl,
         is_public: values.is_public
@@ -20,7 +20,7 @@ const AddCourse = ({ visible, onCancel, onSuccess }) => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+      console.log(values);
       message.success('Thêm khóa học thành công');
       form.resetFields();
       setImageUrl('');
@@ -51,7 +51,7 @@ const AddCourse = ({ visible, onCancel, onSuccess }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://localhost:5000/courses/upload-thumbnail',
+        `${process.env.REACT_APP_API_URL}/courses/upload-thumbnail`,
         formData,
         {
           headers: {
@@ -101,9 +101,16 @@ const AddCourse = ({ visible, onCancel, onSuccess }) => {
         <Form.Item
           name="description"
           label="Mô tả"
-          rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+          rules={[
+            { required: true, message: 'Vui lòng nhập mô tả khóa học!' },
+            { max: 100, message: 'Mô tả không được vượt quá 100 ký tự!' }
+          ]}
         >
-          <Input.TextArea rows={4} />
+          <Input.TextArea 
+            maxLength={100}
+            showCount
+            placeholder="Nhập mô tả khóa học"
+          />
         </Form.Item>
 
         <Form.Item
@@ -120,7 +127,7 @@ const AddCourse = ({ visible, onCancel, onSuccess }) => {
           >
             {imageUrl ? (
               <img 
-                src={imageUrl} 
+                src={`${process.env.REACT_APP_API_URL}${imageUrl}`} 
                 alt="thumbnail" 
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
               />

@@ -1,3 +1,5 @@
+@import '../../styles/layout.css';
+
 .teacher-container {
   padding: 24px;
 }
@@ -76,3 +78,7 @@
 .ant-btn-primary[icon="FileOutlined"] {
   background-color: #722ed1;
 } 
+
+.teacher-container, .course-management {
+  padding: 0px;
+}

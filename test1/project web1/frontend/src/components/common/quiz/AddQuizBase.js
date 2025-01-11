@@ -39,7 +39,7 @@ const AddQuizBase = ({
       form.resetFields();
       onSuccess();
     } catch (error) {
-      message.error('Có l���i xảy ra khi tạo quiz');
+      message.error('Có lỗi xảy ra khi tạo quiz');
     } finally {
       setSubmitting(false);
     }

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, message, Radio } from 'antd';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Auth.css';
+import AuthLayout from './AuthLayout';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -12,9 +13,13 @@ const Register = () => {
     const onFinish = async (values) => {
         try {
             setLoading(true);
-            await axios.post('http://localhost:5000/auth/register', values);
-            message.success('Đăng ký thành công');
-            navigate('/login');
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/register`, values);
+            message.success(response.data.message || 'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.');
+            navigate('/check-email', { 
+                state: { 
+                    email: values.email 
+                } 
+            });
         } catch (error) {
             message.error(error.response?.data?.message || 'Đăng ký thất bại');
         } finally {
@@ -23,9 +28,8 @@ const Register = () => {
     };
 
     return (
-        <div className="auth-container">
+        <AuthLayout>
             <Form
-                form={form}
                 name="register"
                 onFinish={onFinish}
                 layout="vertical"
@@ -67,7 +71,6 @@ const Register = () => {
                         { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/,
                              message: 'Mật khẩu phải có ít nhất 6 ký tự, 1 chữ cái viết hoa, 1 chữ cái viết thường, 1 số!' }
                     ]}
-                    hasFeedback
                 >
                     <Input.Password onChange={() => {
                         form.validateFields(['confirm_password']);
@@ -108,8 +111,12 @@ const Register = () => {
                         Đăng ký
                     </Button>
                 </Form.Item>
+
+                <div className="auth-links">
+                    <Link to="/login">Đã có tài khoản? Đăng nhập</Link>
+                </div>
             </Form>
-        </div>
+        </AuthLayout>
     );
 };
 
