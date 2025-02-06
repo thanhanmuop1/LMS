@@ -1,0 +1,272 @@
+import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import CourseVideosPage from './components/course_videos/course_videos_page';
+import Home from './components/home/home';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import PrivateRoute from './components/auth/PrivateRoute';
+import PrivateRouteTeacher from './components/auth/PrivateRouteTeacher';
+import AdminPage from './components/admin/admin_page';
+import AdminRoute from './components/auth/AdminRoute';
+import VideoManagement from './components/admin/courses/manage_video/video_management';
+import CreateQuiz from './components/admin/quizzes/create_quiz';
+import QuestionManagement from './components/admin/quizzes/questions/question_management';
+import TeacherPage from './components/teacher/teacher_page';
+import TeacherVideoManagement from './components/teacher/courses/video_management';
+import TeacherDocumentManagement from './components/teacher/courses/manage_document/document_management';
+import CreateQuizTeacher from './components/teacher/quizzes/create_quiz';
+import { useEffect } from 'react';
+import CheckEmail from './components/auth/CheckEmail';
+import EmailVerification from './components/auth/EmailVerification';
+import EnrolledCourses from './components/user/enrolled_courses/enrolled_courses';
+import CourseInfo from './components/course_info/course_info';
+import TeacherEnrollmentDetails from './components/teacher/enrollment_details/TeacherEnrollmentDetails';
+import SearchResults from './components/common/search/SearchResults';
+import Profile from './components/profile/profile';
+import ClassManagement from './components/teacher/classes/ClassManagement';
+import ClassCourseManagement from './components/teacher/classes/classCourseManagement';
+import EnrolledClasses from './components/user/classes/EnrolledClasses';
+import ClassCourse from './components/user/classes/classCourse';
+import JoinClassPage from './components/user/classes/JoinClassPage';
+import LandingPage from './components/landing/LandingPage';
+import AdminLogin from './components/admin/auth/AdminLogin';
+import AdminRegister from './components/admin/auth/AdminRegister';
+import NotFound from './components/common/NotFound/NotFound';
+import CourseFullDescription from './components/common/course/courses_detail_manage/CourseFullDescription';
+
+function App() {
+  const isPlatform = window.location.hostname.split('.').length > 1; // localhost.school1.test thì > 2
+  useEffect(() => {
+    const handleLoginSuccess = () => {
+      const role = localStorage.getItem('role');
+      console.log('Login success event, role:', role);
+    };
+
+    window.addEventListener('loginSuccess', handleLoginSuccess);
+    return () => window.removeEventListener('loginSuccess', handleLoginSuccess);
+  }, []);
+
+  return (
+    <Router>
+      <Routes>
+        {isPlatform ? (
+          // Routes cho subdomain (platform)
+          <>
+            <Route path="/landing" element={<LandingPage />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/check-email" element={<CheckEmail />} />
+            <Route path="/verify-email/:token" element={<EmailVerification />} />
+            
+            {/* Teacher Routes */}
+            <Route path="/teacher/*" element={
+              <PrivateRouteTeacher><TeacherPage /></PrivateRouteTeacher>
+            } />
+            <Route path="/teacher/courses/:courseId/videos" element={
+              <PrivateRouteTeacher><TeacherVideoManagement /></PrivateRouteTeacher>
+            } />
+            <Route path="/teacher/courses/:courseId/documents" element={
+              <PrivateRouteTeacher><TeacherDocumentManagement /></PrivateRouteTeacher>
+            } />
+            <Route path="/teacher/quizzes/create" element={
+              <PrivateRouteTeacher><CreateQuizTeacher /></PrivateRouteTeacher>
+            } />
+            <Route path="/teacher/quizzes/edit/:id" element={
+              <PrivateRouteTeacher><CreateQuizTeacher /></PrivateRouteTeacher>
+            } />
+            <Route path='/teacher/quizzes/:quizId/questions' element={
+              <PrivateRouteTeacher><QuestionManagement /></PrivateRouteTeacher>
+            } />
+            <Route path='/teacher/enrollments' element={
+              <PrivateRouteTeacher><TeacherEnrollmentDetails /></PrivateRouteTeacher>
+            } />
+            <Route path="/teacher/classes" element={
+              <PrivateRouteTeacher><ClassManagement /></PrivateRouteTeacher>
+            } />
+            <Route path="/teacher/classes/:classId/courses" element={
+              <PrivateRouteTeacher><ClassCourseManagement /></PrivateRouteTeacher>
+            } />
+            <Route path="/course/:courseId/description" element={
+              <PrivateRouteTeacher><CourseFullDescription /></PrivateRouteTeacher>
+            } />
+
+            {/* Student Routes */}
+            <Route path="/course/:courseId" element={
+              <PrivateRoute><CourseVideosPage /></PrivateRoute>
+            } />
+            <Route path="/enrolled-courses" element={
+              <PrivateRoute><EnrolledCourses /></PrivateRoute>
+            } />
+            <Route path="/course-info/:courseId" element={
+              <PrivateRoute><CourseInfo /></PrivateRoute>
+            } />
+            <Route path="/enrolled-classes" element={
+              <PrivateRoute><EnrolledClasses /></PrivateRoute>
+            } />
+            <Route path="/student/classes/:classId/courses" element={
+              <PrivateRoute><ClassCourse /></PrivateRoute>
+            } />
+            <Route path="/join-class" element={<JoinClassPage />} />
+            <Route path="/profile" element={
+              <PrivateRoute><Profile /></PrivateRoute>
+            } />
+            <Route path="/search" element={<SearchResults />} />
+          </>
+        ) : (
+          // Routes cho domain chính
+          <>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/home" element={<Home />} />
+            <Route 
+              path="/course/:courseId" 
+              element={
+                <PrivateRoute>
+                  <CourseVideosPage />
+                </PrivateRoute>
+              } 
+            />
+            <Route path="/admin/*" element={
+              <AdminRoute>
+                <AdminPage />
+              </AdminRoute>
+            } />
+            <Route path="/admin/courses/:courseId/videos" element={<VideoManagement />} />
+            <Route path="/admin/quizzes/create" element={<CreateQuiz />} />
+            <Route path="/admin/quizzes/edit/:id" element={<CreateQuiz />} />
+            <Route path="/admin/quizzes/:quizId/questions" element={<QuestionManagement />} />
+
+            {/* Teacher Routes */}
+            <Route path="/teacher/*" element={
+              <PrivateRouteTeacher>
+                <TeacherPage />
+              </PrivateRouteTeacher>
+            } />
+            <Route 
+              path="/teacher/courses/:courseId/videos" 
+              element={
+                <PrivateRouteTeacher>
+                  <TeacherVideoManagement />
+                </PrivateRouteTeacher>
+              } 
+            />
+            <Route 
+              path="/teacher/courses/:courseId/documents" 
+              element={
+                <PrivateRouteTeacher>
+                  <TeacherDocumentManagement />
+                </PrivateRouteTeacher>
+              } 
+            />
+            {/* Add new teacher quiz routes */}
+            <Route
+              path="/teacher/quizzes/create"
+              element={
+                <PrivateRouteTeacher>
+                  <CreateQuizTeacher />
+                </PrivateRouteTeacher>
+              }
+            />
+            <Route
+              path="/teacher/quizzes/edit/:id"
+              element={
+                <PrivateRouteTeacher>
+                  <CreateQuizTeacher />
+                </PrivateRouteTeacher>
+              }
+            />
+            <Route
+              path="/teacher/quizzes/:quizId/questions"
+              element={
+                <PrivateRouteTeacher>
+                  <QuestionManagement />
+                </PrivateRouteTeacher>
+              }
+            />
+            <Route 
+              path="/teacher/enrollments" 
+              element={
+                <PrivateRouteTeacher>
+                  <TeacherEnrollmentDetails />
+                </PrivateRouteTeacher>
+              }
+            />
+            <Route 
+              path="/teacher/classes" 
+              element={
+                <PrivateRouteTeacher>
+                  <ClassManagement />
+                </PrivateRouteTeacher>
+              }
+            />
+            <Route 
+              path="/teacher/classes/:classId/courses" 
+              element={
+                <PrivateRouteTeacher>
+                  <ClassCourseManagement />
+                </PrivateRouteTeacher>
+              } 
+            />
+            <Route 
+              path="/enrolled-courses" 
+              element={
+                <PrivateRoute>
+                  <EnrolledCourses />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/course-info/:courseId" 
+              element={
+                <PrivateRoute>
+                  <CourseInfo />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/search" 
+              element={<SearchResults />} 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/enrolled-classes" 
+              element={
+                <PrivateRoute>
+                  <EnrolledClasses />
+                </PrivateRoute>
+              } 
+            />
+            <Route
+              path="/student/classes/:classId/courses" 
+              element={
+                <PrivateRoute>
+                  <ClassCourse />
+                </PrivateRoute>
+              } 
+            />
+            <Route path="/join-class" element={<JoinClassPage />} />
+            <Route path="/login" element={<AdminLogin />} />
+            <Route path="/register" element={<AdminRegister />} />
+            <Route path="/check-email" element={<CheckEmail />} />
+            <Route path="/verify-email/:token" element={<EmailVerification />} />
+            <Route path="/course/:courseId/description" element={
+              <PrivateRoute>
+                <CourseFullDescription />
+              </PrivateRoute>
+            } />
+          </>
+        )}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;

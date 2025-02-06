@@ -1,0 +1,84 @@
+@import '../../styles/layout.css';
+
+.teacher-container {
+  padding: 24px;
+}
+
+.teacher-tabs {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard {
+  padding: 20px 0;
+}
+
+.course-management {
+  padding: 20px 0;
+}
+
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.course-header h2 {
+  margin: 0;
+}
+
+/* Style cho Tabs */
+.ant-tabs-nav {
+  margin-bottom: 20px !important;
+}
+
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+  border-color: #f0f0f0;
+  background: #fafafa;
+}
+
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: white;
+}
+
+/* Style cho action buttons */
+.ant-table-cell .ant-space {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ant-table-cell .ant-btn {
+  min-width: 100px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ant-table-cell .ant-btn > .anticon {
+  margin-right: 4px;
+}
+
+/* Màu sắc cho từng loại nút */
+.ant-btn-primary[icon="VideoCameraOutlined"] {
+  background-color: #1890ff;
+}
+
+.ant-btn-primary[icon="QuestionCircleOutlined"] {
+  background-color: #52c41a;
+}
+
+.ant-btn-primary[icon="FileOutlined"] {
+  background-color: #722ed1;
+} 
+
+.teacher-container, .course-management {
+  padding: 0px;
+}

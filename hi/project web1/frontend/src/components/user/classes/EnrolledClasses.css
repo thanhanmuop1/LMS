@@ -1,0 +1,165 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.header h2 {
+    margin: 0;
+}
+
+.class-section {
+    background: white;
+    border-radius: 8px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.class-grid {
+    padding: 8px 0;
+}
+
+.class-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.class-card {
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid #e0e0e0;
+}
+
+.class-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.class-card-content {
+    padding: 8px;
+}
+
+.class-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.class-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    margin-right: 12px;
+    overflow: hidden;
+}
+
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.class-title {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+.more-button {
+    padding: 4px;
+    color: #666;
+}
+
+.class-card-footer {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 12px;
+    margin-top: 8px;
+}
+
+.class-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.class-actions .ant-btn {
+    color: #666;
+}
+
+.class-actions .ant-btn:hover {
+    color: #1890ff;
+    background: rgba(24, 144, 255, 0.1);
+}
+
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    padding: 16px 0;
+}
+
+/* Modal styles */
+.ant-modal-content {
+    border-radius: 8px;
+    box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 
+                0 6px 16px 0 rgba(0, 0, 0, 0.08), 
+                0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ant-modal-header {
+    border-radius: 8px 8px 0 0;
+    padding: 16px 24px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ant-modal-title {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    color: #262626;
+}
+
+.ant-modal-footer {
+    border-top: 1px solid #f0f0f0;
+    padding: 10px 16px;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Input hover effects */
+.ant-input:hover,
+.ant-input-password:hover {
+    border-color: #40a9ff;
+    transition: all 0.3s ease;
+}
+
+.ant-input:focus,
+.ant-input-password:focus {
+    border-color: #40a9ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* Button hover effects */
+.ant-modal-footer .ant-btn-primary:hover {
+    background: #40a9ff;
+    border-color: #40a9ff;
+    box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
+} 

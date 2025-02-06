@@ -1,0 +1,130 @@
+.admin-auth-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url('../../../assets/backgroundAuthAdmin.png') no-repeat center center fixed;
+  background-size: cover;
+  padding: 20px;
+}
+
+.auth-row {
+  width: 100%;
+}
+
+.admin-auth-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 24px 20px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.auth-title {
+  color: #1a365d !important;
+  margin-bottom: 4px !important;
+  font-weight: 600 !important;
+}
+
+.auth-subtitle {
+  font-size: 14px;
+}
+
+.auth-icon {
+  color: #4a5568;
+}
+
+.ant-form-item {
+  margin-bottom: 16px;
+}
+
+.ant-form-item-label > label {
+  color: #4a5568 !important;
+  font-weight: 500;
+  font-size: 14px;
+  height: 24px;
+}
+
+.ant-input-affix-wrapper {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 4px 11px;
+  height: 40px;
+}
+
+.ant-input-affix-wrapper:hover,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: #4299e1;
+  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+}
+
+.auth-button {
+  height: 40px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 8px;
+  background: #4299e1;
+  border: none;
+  margin-top: 8px;
+}
+
+.auth-button:hover {
+  background: #3182ce !important;
+}
+
+.auth-links {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.auth-links a {
+  color: #4299e1;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.auth-links a:hover {
+  color: #3182ce;
+  text-decoration: underline;
+}
+
+.ant-divider {
+  margin: 20px 0;
+  border-color: #e2e8f0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .admin-auth-card {
+    padding: 20px 16px;
+  }
+  
+  .auth-title {
+    font-size: 20px !important;
+  }
+
+  .auth-subtitle {
+    font-size: 13px;
+  }
+} 
+
+.forgot-password {
+  margin-top: 8px;
+}
+
+.forgot-password a {
+  color: #718096;
+  font-size: 13px;
+}
+
+.forgot-password a:hover {
+  color: #4299e1;
+} 

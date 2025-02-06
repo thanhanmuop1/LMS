@@ -1,0 +1,32 @@
+.video-management {
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.chapters-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.chapter-card {
+  background: #fff;
+  border-radius: 8px;
+}
+
+.chapter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ant-table-cell .ant-space {
+  flex-wrap: wrap;
+  gap: 8px;
+} 

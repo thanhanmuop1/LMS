@@ -1,0 +1,188 @@
+/* Reset và base styles */
+.profile-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Profile Header */
+.profile-header {
+  text-align: center;
+  padding: 20px 0 30px;
+}
+
+.profile-avatar-section {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.avatar-wrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+}
+
+.profile-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-placeholder {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: #9ca3af;
+  border: 4px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-upload-button {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #4f46e5;
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.avatar-upload-button:hover {
+  background: #4338ca;
+  transform: scale(1.05);
+}
+
+.profile-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+  margin: 16px 0 4px;
+}
+
+.profile-role {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+/* Form Styles */
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 24px;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.form-item-half {
+  flex: 1;
+  margin-bottom: 0 !important;
+}
+
+.profile-form .ant-form-item {
+  margin-bottom: 24px;
+}
+
+.profile-form .ant-form-item-label > label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.profile-form .ant-input {
+  height: 42px;
+  border-radius: 8px;
+  border-color: #e5e7eb;
+}
+
+.profile-form .ant-input:hover {
+  border-color: #4f46e5;
+}
+
+.profile-form .ant-input[disabled] {
+  background-color: #f9fafb;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.profile-form .ant-input-prefix {
+  color: #9ca3af;
+  margin-right: 10px;
+}
+
+/* Button Styles */
+.form-actions {
+  margin-top: 32px;
+  text-align: right;
+}
+
+.update-button {
+  height: 42px;
+  padding: 0 32px;
+  font-weight: 500;
+  font-size: 16px;
+  border-radius: 8px;
+  background: #4f46e5;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.update-button:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .form-item-half {
+    margin-bottom: 24px !important;
+  }
+  
+  .avatar-wrapper {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .profile-avatar,
+  .avatar-placeholder {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .avatar-upload-button {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .profile-name {
+    font-size: 20px;
+  }
+} 
